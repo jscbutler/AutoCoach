@@ -1,0 +1,11 @@
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\TrainingPeaksConnection.Tests.dll
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\TrainingPeaksConnection.Tests.pdb
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\Public.dll
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\TrainingPeaksConnection.dll
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\Public.pdb
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\TrainingPeaksConnection.pdb
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\obj\Debug\TrainingPeaksConnection.Tests.csprojResolveAssemblyReference.cache
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\obj\Debug\TrainingPeaksConnection.Tests.dll
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\obj\Debug\TrainingPeaksConnection.Tests.pdb
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\TrainingPeaksConnection.Tests.dll.config

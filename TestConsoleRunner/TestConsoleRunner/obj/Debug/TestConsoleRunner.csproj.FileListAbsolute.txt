@@ -4,3 +4,7 @@ c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\TestConsoleRunner
 c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\obj\Debug\TestConsoleRunner.csprojResolveAssemblyReference.cache
 c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\obj\Debug\TestConsoleRunner.exe
 c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\obj\Debug\TestConsoleRunner.pdb
+c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\Public.dll
+c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\TrainingPeaksConnection.dll
+c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\TrainingPeaksConnection.pdb
+c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\Public.pdb

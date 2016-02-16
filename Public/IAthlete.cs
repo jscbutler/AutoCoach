@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace Public
 {
-    public class Class1
+    public interface IAthlete
     {
-    }
+        string name { get; }
+        string loginName { get; }
+        string loginPassword { get; }
+        
+    };
 }

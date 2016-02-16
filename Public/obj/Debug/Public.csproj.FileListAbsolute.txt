@@ -1,0 +1,5 @@
+c:\Dev\AutoCoach\Public\bin\Debug\Public.dll
+c:\Dev\AutoCoach\Public\bin\Debug\Public.pdb
+c:\Dev\AutoCoach\Public\obj\Debug\Public.csprojResolveAssemblyReference.cache
+c:\Dev\AutoCoach\Public\obj\Debug\Public.dll
+c:\Dev\AutoCoach\Public\obj\Debug\Public.pdb

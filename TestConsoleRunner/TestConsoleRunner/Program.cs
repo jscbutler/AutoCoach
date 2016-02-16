@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TrainingPeaksConnection;
 
 namespace TestConsoleRunner
 {
@@ -10,6 +11,8 @@ namespace TestConsoleRunner
     {
         static void Main(string[] args)
         {
+
+            TrainingPeaksClient conn = new TrainingPeaksClient();
         }
     }
 }
