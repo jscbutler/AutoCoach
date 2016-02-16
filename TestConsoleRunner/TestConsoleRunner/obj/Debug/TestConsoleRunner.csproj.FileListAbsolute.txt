@@ -1,0 +1,6 @@
+c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\TestConsoleRunner.exe.config
+c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\TestConsoleRunner.exe
+c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\TestConsoleRunner.pdb
+c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\obj\Debug\TestConsoleRunner.csprojResolveAssemblyReference.cache
+c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\obj\Debug\TestConsoleRunner.exe
+c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\obj\Debug\TestConsoleRunner.pdb
