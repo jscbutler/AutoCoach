@@ -19,8 +19,6 @@ namespace TrainingPeaksConnection
     }
     public class ConnectContext
     {
-
-        private string soapURL = @"http://app.trainingpeaks.com/xx/yy";
         public AccountType accountType
         {
             get;

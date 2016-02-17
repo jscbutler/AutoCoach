@@ -49,6 +49,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Compile Include="TrainingPeaksAthleteData.cs" />
     <Compile Include="TrainingPeaksClient.cs" />
   </ItemGroup>
   <ItemGroup>

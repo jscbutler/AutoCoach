@@ -1,0 +1,7 @@
+c:\Dev\AutoCoach\TestConsoleRunner\BusinessObjects\bin\Debug\BusinessObjects.dll
+c:\Dev\AutoCoach\TestConsoleRunner\BusinessObjects\bin\Debug\BusinessObjects.pdb
+c:\Dev\AutoCoach\TestConsoleRunner\BusinessObjects\bin\Debug\Public.dll
+c:\Dev\AutoCoach\TestConsoleRunner\BusinessObjects\bin\Debug\Public.pdb
+c:\Dev\AutoCoach\TestConsoleRunner\BusinessObjects\obj\Debug\BusinessObjects.csprojResolveAssemblyReference.cache
+c:\Dev\AutoCoach\TestConsoleRunner\BusinessObjects\obj\Debug\BusinessObjects.dll
+c:\Dev\AutoCoach\TestConsoleRunner\BusinessObjects\obj\Debug\BusinessObjects.pdb

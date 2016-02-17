@@ -8,3 +8,5 @@ c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\Public.dll
 c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\TrainingPeaksConnection.dll
 c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\TrainingPeaksConnection.pdb
 c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\Public.pdb
+c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\BusinessObjects.dll
+c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\BusinessObjects.pdb
