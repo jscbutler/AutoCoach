@@ -1,7 +1,5 @@
-﻿
-namespace Public
+﻿namespace Public
 {
-
     public enum AthleteDiscipline
     {
         Runner,
@@ -22,55 +20,11 @@ namespace Public
     {
         string Name { get; }
         AthleteDiscipline Discipline { get; }
-        ITrainingPeaksAthleteData TPData { get; }
-
-    };
+        ITrainingPeaksAthleteData TPData { get; set; }
+    }
 
     public interface ISportData
     {
         SportType Type { get; }
-
-
     }
-
-     
-
-
-    public interface ITrainingPeaksAthleteData
-    {
-        string LoginName { get; set; }
-        string LoginPassword { get; set; }
-        TrainingPeaksAthleteAccountTypes AccountType { get; set; }
-        int PersonID { get; }
-        string AthleteName { get; }
-
-    }
-
-
-    public enum TrainingPeaksAthleteAccountTypes
-    {
-
-        /// <remarks/>
-        CoachedPremium = 1,
-
-        /// <remarks/>
-        SelfCoachedPremium = 2,
-
-        /// <remarks/>
-        SharedSelfCoachedPremium = 4,
-
-        /// <remarks/>
-        SharedCoachedPremium = 8,
-
-        /// <remarks/>
-        CoachedFree = 16,
-
-        /// <remarks/>
-        SharedFree = 32,
-
-        /// <remarks/>
-        Plan = 64,
-    }
-
-
 }

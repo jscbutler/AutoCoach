@@ -1,5 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://www.trainingpeaks.com/TPWebServices/" xmlns:s1="http://microsoft.com/wsdl/types/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s2="http://www.trainingpeaks.com/TPWebServices/AbstractTypes" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://www.trainingpeaks.com/TPWebServices/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+                  xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/"
+                  xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+                  xmlns:tns="http://www.trainingpeaks.com/TPWebServices/" xmlns:s1="http://microsoft.com/wsdl/types/"
+                  xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema"
+                  xmlns:s2="http://www.trainingpeaks.com/TPWebServices/AbstractTypes"
+                  xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+                  targetNamespace="http://www.trainingpeaks.com/TPWebServices/"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://www.trainingpeaks.com/TPWebServices/">
       <s:import namespace="http://microsoft.com/wsdl/types/" />
@@ -29,7 +39,8 @@
       <s:element name="CreateFreePersonalEditionAccountForAffiliateResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="CreateFreePersonalEditionAccountForAffiliateResult" type="tns:PersonBase" />
+            <s:element minOccurs="0" maxOccurs="1" name="CreateFreePersonalEditionAccountForAffiliateResult"
+                       type="tns:PersonBase" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -547,7 +558,7 @@
       <s:element name="ShareWorkoutResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="ShareWorkoutResult" type="tns:WorkoutResult" />
+            <s:element minOccurs="0" maxOccurs="1" name="ShareWorkoutResult" type="tns:IWorkoutResult" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -573,7 +584,8 @@
       <s:element name="ImportFileForUserV4Response">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="ImportFileForUserV4Result" type="tns:ImportFileForUserResultV2" />
+            <s:element minOccurs="0" maxOccurs="1" name="ImportFileForUserV4Result"
+                       type="tns:ImportFileForUserResultV2" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -581,12 +593,12 @@
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="Success" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="PersonId" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="WorkoutsAdded" type="tns:ArrayOfWorkoutResult" />
+          <s:element minOccurs="0" maxOccurs="1" name="WorkoutsAdded" type="tns:ArrayOfIWorkoutResult" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfWorkoutResult">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="WorkoutResult" nillable="true" type="tns:WorkoutResult" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="WorkoutResult" nillable="true" type="tns:IWorkoutResult" />
         </s:sequence>
       </s:complexType>
       <s:element name="AddWorkoutsForAthlete">
@@ -600,7 +612,7 @@
       </s:element>
       <s:complexType name="ArrayOfWorkout">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="Workout" nillable="true" type="tns:Workout" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Workout" nillable="true" type="tns:IWorkout" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="Workout">
@@ -638,7 +650,7 @@
       <s:element name="AddWorkoutsForAthleteResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="AddWorkoutsForAthleteResult" type="tns:ArrayOfWorkout" />
+            <s:element minOccurs="0" maxOccurs="1" name="AddWorkoutsForAthleteResult" type="tns:ArrayOfIWorkout" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -667,7 +679,8 @@
       <s:element name="AddWorkoutsForAccessibleAthleteResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="AddWorkoutsForAccessibleAthleteResult" type="tns:ArrayOfWorkout" />
+            <s:element minOccurs="0" maxOccurs="1" name="AddWorkoutsForAccessibleAthleteResult"
+                       type="tns:ArrayOfIWorkout" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -683,7 +696,7 @@
       <s:element name="UpdateWorkoutsForAthleteResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="UpdateWorkoutsForAthleteResult" type="tns:ArrayOfWorkout" />
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateWorkoutsForAthleteResult" type="tns:ArrayOfIWorkout" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -712,7 +725,7 @@
       <s:element name="GetWorkoutsForAthleteResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetWorkoutsForAthleteResult" type="tns:ArrayOfWorkout" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetWorkoutsForAthleteResult" type="tns:ArrayOfIWorkout" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -730,7 +743,8 @@
       <s:element name="GetWorkoutsForAccessibleAthleteResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetWorkoutsForAccessibleAthleteResult" type="tns:ArrayOfWorkout" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetWorkoutsForAccessibleAthleteResult"
+                       type="tns:ArrayOfIWorkout" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -852,9 +866,9 @@
       <s:element name="ArrayOfString" nillable="true" type="tns:ArrayOfString" />
       <s:element name="boolean" type="s:boolean" />
       <s:element name="ImportFileForUserResult" nillable="true" type="tns:ImportFileForUserResult" />
-      <s:element name="WorkoutResult" nillable="true" type="tns:WorkoutResult" />
+      <s:element name="WorkoutResult" nillable="true" type="tns:IWorkoutResult" />
       <s:element name="ImportFileForUserResultV2" nillable="true" type="tns:ImportFileForUserResultV2" />
-      <s:element name="ArrayOfWorkout" nillable="true" type="tns:ArrayOfWorkout" />
+      <s:element name="ArrayOfWorkout" nillable="true" type="tns:ArrayOfIWorkout" />
       <s:element name="guid" type="s1:guid" />
       <s:element name="ArrayOfPersonBase" nillable="true" type="tns:ArrayOfPersonBase" />
     </s:schema>
@@ -2521,7 +2535,9 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="CreateFreePersonalEditionAccountForAffiliate">
-      <soap:operation soapAction="http://www.trainingpeaks.com/TPWebServices/CreateFreePersonalEditionAccountForAffiliate" style="document" />
+      <soap:operation
+        soapAction="http://www.trainingpeaks.com/TPWebServices/CreateFreePersonalEditionAccountForAffiliate"
+        style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2557,7 +2573,8 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="LogWeightAndPercentBodyFat">
-      <soap:operation soapAction="http://www.trainingpeaks.com/TPWebServices/LogWeightAndPercentBodyFat" style="document" />
+      <soap:operation soapAction="http://www.trainingpeaks.com/TPWebServices/LogWeightAndPercentBodyFat"
+                      style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2836,7 +2853,8 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="DeleteWorkoutsForAccessibleAthlete">
-      <soap:operation soapAction="http://www.trainingpeaks.com/TPWebServices/DeleteWorkoutsForAccessibleAthlete" style="document" />
+      <soap:operation soapAction="http://www.trainingpeaks.com/TPWebServices/DeleteWorkoutsForAccessibleAthlete"
+                      style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2845,7 +2863,8 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="AddWorkoutsForAccessibleAthlete">
-      <soap:operation soapAction="http://www.trainingpeaks.com/TPWebServices/AddWorkoutsForAccessibleAthlete" style="document" />
+      <soap:operation soapAction="http://www.trainingpeaks.com/TPWebServices/AddWorkoutsForAccessibleAthlete"
+                      style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2881,7 +2900,8 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="GetWorkoutsForAccessibleAthlete">
-      <soap:operation soapAction="http://www.trainingpeaks.com/TPWebServices/GetWorkoutsForAccessibleAthlete" style="document" />
+      <soap:operation soapAction="http://www.trainingpeaks.com/TPWebServices/GetWorkoutsForAccessibleAthlete"
+                      style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2890,7 +2910,8 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="GetExtendedWorkoutsForAccessibleAthlete">
-      <soap:operation soapAction="http://www.trainingpeaks.com/TPWebServices/GetExtendedWorkoutsForAccessibleAthlete" style="document" />
+      <soap:operation soapAction="http://www.trainingpeaks.com/TPWebServices/GetExtendedWorkoutsForAccessibleAthlete"
+                      style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2899,7 +2920,9 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="GetExtendedWorkoutDataForAccessibleAthlete">
-      <soap:operation soapAction="http://www.trainingpeaks.com/TPWebServices/GetExtendedWorkoutDataForAccessibleAthlete" style="document" />
+      <soap:operation
+        soapAction="http://www.trainingpeaks.com/TPWebServices/GetExtendedWorkoutDataForAccessibleAthlete"
+        style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2917,7 +2940,8 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="AuthenticateAccessibleAthlete">
-      <soap:operation soapAction="http://www.trainingpeaks.com/TPWebServices/AuthenticateAccessibleAthlete" style="document" />
+      <soap:operation soapAction="http://www.trainingpeaks.com/TPWebServices/AuthenticateAccessibleAthlete"
+                      style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2947,7 +2971,9 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="CreateFreePersonalEditionAccountForAffiliate">
-      <soap12:operation soapAction="http://www.trainingpeaks.com/TPWebServices/CreateFreePersonalEditionAccountForAffiliate" style="document" />
+      <soap12:operation
+        soapAction="http://www.trainingpeaks.com/TPWebServices/CreateFreePersonalEditionAccountForAffiliate"
+        style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -2983,7 +3009,8 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="LogWeightAndPercentBodyFat">
-      <soap12:operation soapAction="http://www.trainingpeaks.com/TPWebServices/LogWeightAndPercentBodyFat" style="document" />
+      <soap12:operation soapAction="http://www.trainingpeaks.com/TPWebServices/LogWeightAndPercentBodyFat"
+                        style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3262,7 +3289,8 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="DeleteWorkoutsForAccessibleAthlete">
-      <soap12:operation soapAction="http://www.trainingpeaks.com/TPWebServices/DeleteWorkoutsForAccessibleAthlete" style="document" />
+      <soap12:operation soapAction="http://www.trainingpeaks.com/TPWebServices/DeleteWorkoutsForAccessibleAthlete"
+                        style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3271,7 +3299,8 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="AddWorkoutsForAccessibleAthlete">
-      <soap12:operation soapAction="http://www.trainingpeaks.com/TPWebServices/AddWorkoutsForAccessibleAthlete" style="document" />
+      <soap12:operation soapAction="http://www.trainingpeaks.com/TPWebServices/AddWorkoutsForAccessibleAthlete"
+                        style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3280,7 +3309,8 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="UpdateWorkoutsForAthlete">
-      <soap12:operation soapAction="http://www.trainingpeaks.com/TPWebServices/UpdateWorkoutsForAthlete" style="document" />
+      <soap12:operation soapAction="http://www.trainingpeaks.com/TPWebServices/UpdateWorkoutsForAthlete"
+                        style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3289,7 +3319,8 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="DeleteWorkoutsForAthlete">
-      <soap12:operation soapAction="http://www.trainingpeaks.com/TPWebServices/DeleteWorkoutsForAthlete" style="document" />
+      <soap12:operation soapAction="http://www.trainingpeaks.com/TPWebServices/DeleteWorkoutsForAthlete"
+                        style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3307,7 +3338,8 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="GetWorkoutsForAccessibleAthlete">
-      <soap12:operation soapAction="http://www.trainingpeaks.com/TPWebServices/GetWorkoutsForAccessibleAthlete" style="document" />
+      <soap12:operation soapAction="http://www.trainingpeaks.com/TPWebServices/GetWorkoutsForAccessibleAthlete"
+                        style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3316,7 +3348,8 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="GetExtendedWorkoutsForAccessibleAthlete">
-      <soap12:operation soapAction="http://www.trainingpeaks.com/TPWebServices/GetExtendedWorkoutsForAccessibleAthlete" style="document" />
+      <soap12:operation soapAction="http://www.trainingpeaks.com/TPWebServices/GetExtendedWorkoutsForAccessibleAthlete"
+                        style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3325,7 +3358,9 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="GetExtendedWorkoutDataForAccessibleAthlete">
-      <soap12:operation soapAction="http://www.trainingpeaks.com/TPWebServices/GetExtendedWorkoutDataForAccessibleAthlete" style="document" />
+      <soap12:operation
+        soapAction="http://www.trainingpeaks.com/TPWebServices/GetExtendedWorkoutDataForAccessibleAthlete"
+        style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3343,7 +3378,8 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="AuthenticateAccessibleAthlete">
-      <soap12:operation soapAction="http://www.trainingpeaks.com/TPWebServices/AuthenticateAccessibleAthlete" style="document" />
+      <soap12:operation soapAction="http://www.trainingpeaks.com/TPWebServices/AuthenticateAccessibleAthlete"
+                        style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

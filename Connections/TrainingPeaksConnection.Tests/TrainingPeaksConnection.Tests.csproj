@@ -35,6 +35,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FakeItEasy, Version=1.25.3.0, Culture=neutral, PublicKeyToken=eff28e2146d5fd2c, processorArchitecture=MSIL">
+      <HintPath>..\..\TestConsoleRunner\packages\FakeItEasy.1.25.3\lib\net40\FakeItEasy.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
@@ -53,13 +57,17 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="TrainingPeaksContextTests.cs" />
+    <Compile Include="TrainingPeaksClientTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Public\Public.csproj">
       <Project>{db3f6f13-6292-4301-87ef-2d5aa1b81890}</Project>
       <Name>Public</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TestConsoleRunner\BusinessObjects\BusinessObjects.csproj">
+      <Project>{0835a836-fbca-4663-9bcb-233d53f76950}</Project>
+      <Name>BusinessObjects</Name>
     </ProjectReference>
     <ProjectReference Include="..\TrainingPeaksConnection\TrainingPeaksConnection.csproj">
       <Project>{4f6ea33c-57c7-41fb-b3c9-1aed545ea93c}</Project>
@@ -68,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="Properties\DataSources\System.Xml.XmlNode.datasource" />
   </ItemGroup>
   <Choose>

@@ -10,3 +10,5 @@ c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\TrainingPeaksConn
 c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\Public.pdb
 c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\BusinessObjects.dll
 c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\BusinessObjects.pdb
+c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\Newtonsoft.Json.dll
+c:\Dev\AutoCoach\TestConsoleRunner\TestConsoleRunner\bin\Debug\Newtonsoft.Json.xml

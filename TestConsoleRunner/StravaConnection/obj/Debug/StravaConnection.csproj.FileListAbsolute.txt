@@ -1,0 +1,10 @@
+c:\Dev\AutoCoach\TestConsoleRunner\StravaConnection\bin\Debug\StravaConnection.dll
+c:\Dev\AutoCoach\TestConsoleRunner\StravaConnection\bin\Debug\StravaConnection.pdb
+c:\Dev\AutoCoach\TestConsoleRunner\StravaConnection\bin\Debug\Newtonsoft.Json.dll
+c:\Dev\AutoCoach\TestConsoleRunner\StravaConnection\bin\Debug\StravaDotNet.dll
+c:\Dev\AutoCoach\TestConsoleRunner\StravaConnection\bin\Debug\Newtonsoft.Json.xml
+c:\Dev\AutoCoach\TestConsoleRunner\StravaConnection\bin\Debug\StravaDotNet.pdb
+c:\Dev\AutoCoach\TestConsoleRunner\StravaConnection\bin\Debug\StravaDotNet.xml
+c:\Dev\AutoCoach\TestConsoleRunner\StravaConnection\obj\Debug\StravaConnection.dll
+c:\Dev\AutoCoach\TestConsoleRunner\StravaConnection\obj\Debug\StravaConnection.pdb
+c:\Dev\AutoCoach\TestConsoleRunner\StravaConnection\obj\Debug\StravaConnection.csprojResolveAssemblyReference.cache

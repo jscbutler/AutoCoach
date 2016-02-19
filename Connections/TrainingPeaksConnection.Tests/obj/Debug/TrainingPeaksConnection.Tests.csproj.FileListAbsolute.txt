@@ -9,3 +9,7 @@ c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\obj\Debug\TrainingPea
 c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\obj\Debug\TrainingPeaksConnection.Tests.dll
 c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\obj\Debug\TrainingPeaksConnection.Tests.pdb
 c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\TrainingPeaksConnection.Tests.dll.config
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\FakeItEasy.dll
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\BusinessObjects.dll
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\FakeItEasy.xml
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\BusinessObjects.pdb

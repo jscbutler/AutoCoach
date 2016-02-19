@@ -1,42 +1,93 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Public;
+using TrainingPeaksConnection.TrainingPeaksServiceReference;
 
 namespace TrainingPeaksConnection
 {
+    //3) take the average of all of the values obtained in step #2. 
+
+//4) take the 4th root of the value obtained in step #3. 
+
+    // IF = NP/FTP
+
+    // TSS = ...x`
+    /// <summary>
+    ///     Normalized Power Calc.
+    ///     1) starting at the 30 s mark, calculate a rolling 30 s average (of the preceeding time points, obviously).
+    ///     2) raise all the values obtained in step #1 to the 4th power.
+    /// </summary>
     public class TrainingPeaksClient
     {
+        private readonly ServiceSoap soapClient;
 
-        TrainingPeaksServiceReference.ServiceSoapClient soapClient;
+        public TrainingPeaksClient(ServiceSoap client)
+        {
+            soapClient = client;
+        }
+
         public TrainingPeaksClient()
         {
-            soapClient = new TrainingPeaksServiceReference.ServiceSoapClient("ServiceSoap");
+            soapClient = new ServiceSoapClient("ServiceSoap");
         }
 
         public void GetAthleteData(IAthlete theAthlete)
         {
-            var accessibleAthletes = soapClient.GetAccessibleAthletes(theAthlete.TPData.LoginName, theAthlete.TPData.LoginPassword, AccountTypeMapping(theAthlete.TPData.AccountType));
+            var accessibleAthletes = soapClient.GetAccessibleAthletes(theAthlete.TPData.LoginName,
+                theAthlete.TPData.LoginPassword, AccountTypeMapping(theAthlete.TPData.AccountType));
+            if(accessibleAthletes.Length <1)
+                throw new Exception("No Athlete Data returned from GetAccessibleAthletes");
             if (accessibleAthletes.Length > 1)
                 throw new Exception("More than 1 Athlete in profile for " + theAthlete.TPData.LoginName);
             var athlete = accessibleAthletes[0];
-            TrainingPeaksAthleteData tpAthleteData = new TrainingPeaksAthleteData();
-            tpAthleteData.AthleteName = athlete.FirstName + " " + athlete.LastName;
-            tpAthleteData.PersonID = athlete.PersonId;
+            theAthlete.TPData.AthleteName = athlete.FirstName + " " + athlete.LastName;
+            theAthlete.TPData.PersonID = athlete.PersonId;
         }
 
-        public void GetLastWorkout (IAthlete athlete)
+        public void GetLastWorkout(IAthlete athlete)
         {
-            var workouts = soapClient.GetWorkoutsForAccessibleAthlete(athlete.TPData.LoginName, athlete.TPData.LoginPassword, athlete.TPData.PersonID, new DateTime(2016, 01, 01), DateTime.Today);
+            var workouts = soapClient.GetWorkoutsForAccessibleAthlete(athlete.TPData.LoginName,
+                athlete.TPData.LoginPassword, athlete.TPData.PersonID, new DateTime(2016, 02, 01), DateTime.Today);
             var lastworkout = workouts.Last();
-            var extendedWorkoutData = soapClient.GetExtendedWorkoutDataForAccessibleAthlete(athlete.TPData.LoginName, athlete.TPData.LoginPassword, athlete.TPData.PersonID, lastworkout.WorkoutId);
+            var extendedWorkoutData = soapClient.GetExtendedWorkoutDataForAccessibleAthlete(athlete.TPData.LoginName,
+                athlete.TPData.LoginPassword, athlete.TPData.PersonID, lastworkout.WorkoutId);
         }
 
-        TrainingPeaksServiceReference.AthleteAccountTypes AccountTypeMapping (TrainingPeaksAthleteAccountTypes accountType)
+        public List<IWorkout> GetRecentWorkouts(IAthlete athlete)
         {
-            return (TrainingPeaksServiceReference.AthleteAccountTypes)accountType;
+            var workouts = soapClient.GetWorkoutsForAccessibleAthlete(athlete.TPData.LoginName,
+                athlete.TPData.LoginPassword, athlete.TPData.PersonID, new DateTime(2016, 02, 01), DateTime.Today);
+            var internalWorkoutList = new List<IWorkout>(100);
+            internalWorkoutList.AddRange(workouts.Select(CovertTPWorkoutToInternal));
+            return internalWorkoutList;
+        }
+
+        private IWorkout CovertTPWorkoutToInternal(Workout tpWorkout)
+        {
+            IWorkout internalWorkout = null;
+            switch (tpWorkout.WorkoutTypeDescription)
+            {
+                case "Swim":
+                {
+                    break;
+                }
+                case "Cycle":
+                {
+                    internalWorkout = TrainingPeaksWorkoutMappings.MapCycleWorkout(tpWorkout);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+            return internalWorkout;
+        }
+
+        public static AthleteAccountTypes AccountTypeMapping(TrainingPeaksAthleteAccountTypes accountType)
+        {
+            return (AthleteAccountTypes) accountType;
         }
     }
 }

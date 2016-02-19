@@ -51,11 +51,16 @@
     </Compile>
     <Compile Include="TrainingPeaksAthleteData.cs" />
     <Compile Include="TrainingPeaksClient.cs" />
+    <Compile Include="TrainingPeaksWorkoutMappings.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Public\Public.csproj">
       <Project>{db3f6f13-6292-4301-87ef-2d5aa1b81890}</Project>
       <Name>Public</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TestConsoleRunner\BusinessObjects\BusinessObjects.csproj">
+      <Project>{0835a836-fbca-4663-9bcb-233d53f76950}</Project>
+      <Name>BusinessObjects</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
