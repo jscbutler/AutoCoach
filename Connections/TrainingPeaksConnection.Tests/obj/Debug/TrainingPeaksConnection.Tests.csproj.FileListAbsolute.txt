@@ -13,3 +13,15 @@ c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\FakeItEasy.
 c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\BusinessObjects.dll
 c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\FakeItEasy.xml
 c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\BusinessObjects.pdb
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\xunit.abstractions.dll
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\xunit.runner.visualstudio.testadapter.dll
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\xunit.runner.utility.desktop.dll
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\xunit.assert.dll
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\xunit.core.dll
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\xunit.execution.desktop.dll
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\xunit.assert.pdb
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\xunit.assert.xml
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\xunit.core.pdb
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\xunit.core.xml
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\xunit.execution.desktop.pdb
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\xunit.execution.desktop.xml

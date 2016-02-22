@@ -22,7 +22,7 @@ namespace TestConsoleRunner
             Console.Out.WriteLine("Received Person Data - " + athlete.TPData.AthleteName + " ID:" +
                                   athlete.TPData.PersonID);
             Console.Out.WriteLine("Accesing last workout for " + athlete.Name);
-            conn.GetLastWorkout(athlete);
+            conn.GetLastWorkoutIn30Days(athlete);
             Console.In.ReadLine();
         }
     }

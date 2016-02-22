@@ -12,22 +12,21 @@ namespace TrainingPeaksConnection.Tests
     {
         public TrainingPeaksClient SetupFakeTpClient()
         {
-
             //ServiceSoapClient soapClient = new ServiceSoapClient("ServiceSoap");
-            var fakeClient = A.Fake<ServiceSoap>( );
+            var fakeClient = A.Fake<ServiceSoap>();
 
             var client = new TrainingPeaksClient(fakeClient);
             A.CallTo(() => fakeClient.GetAccessibleAthletes("", "", AthleteAccountTypes.CoachedFree))
                 .Returns(FakePerson());
             return client;
         }
-      
+
 
         [TestMethod]
         public void TestTrainingPeaskConstructorp()
         {
             var client = SetupFakeTpClient();
-            Assert.IsInstanceOfType(client, typeof(TrainingPeaksClient));
+            Assert.IsInstanceOfType(client, typeof (TrainingPeaksClient));
         }
 
         [TestMethod]
@@ -38,10 +37,8 @@ namespace TrainingPeaksConnection.Tests
             Action action = () => client.GetAthleteData(athlete);
             // Add exception checks with NUnit or such.
             //A.CallTo(() => client.GetAthleteData(athlete)).
-           
+
             ;
-
-
         }
 
         [TestMethod]
@@ -49,13 +46,12 @@ namespace TrainingPeaksConnection.Tests
         {
             var client = SetupFakeTpClient();
             var athlete = SetupAthlete();
-            
+
 
             client.GetAthleteData(athlete);
-            
+
             Assert.IsNotNull(athlete.TPData.AthleteName);
             Assert.AreEqual(athlete.TPData.PersonID, 12345);
-
         }
 
         [TestMethod]
@@ -74,7 +70,7 @@ namespace TrainingPeaksConnection.Tests
         {
             var fakePerson = A.Fake<PersonBase>();
             fakePerson.Age = 33;
-            fakePerson.AthleteTypeValue=AthleteType.Triathlete;
+            fakePerson.AthleteTypeValue = AthleteType.Triathlete;
             fakePerson.FirstName = "John";
             fakePerson.LastName = "Doe";
             fakePerson.Username = "jdoe";
@@ -85,7 +81,7 @@ namespace TrainingPeaksConnection.Tests
 
         public Athlete SetupAthlete()
         {
-            Athlete athlete = new Athlete
+            var athlete = new Athlete
             {
                 TPData = new TrainingPeaksAthleteData
                 {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BusinessObjects;
 using Public;
 using TrainingPeaksConnection.TrainingPeaksServiceReference;
 
@@ -36,7 +37,7 @@ namespace TrainingPeaksConnection
         {
             var accessibleAthletes = soapClient.GetAccessibleAthletes(theAthlete.TPData.LoginName,
                 theAthlete.TPData.LoginPassword, AccountTypeMapping(theAthlete.TPData.AccountType));
-            if(accessibleAthletes.Length <1)
+            if (accessibleAthletes.Length < 1)
                 throw new Exception("No Athlete Data returned from GetAccessibleAthletes");
             if (accessibleAthletes.Length > 1)
                 throw new Exception("More than 1 Athlete in profile for " + theAthlete.TPData.LoginName);
@@ -45,11 +46,12 @@ namespace TrainingPeaksConnection
             theAthlete.TPData.PersonID = athlete.PersonId;
         }
 
-        public void GetLastWorkout(IAthlete athlete)
+        public IWorkout GetLastWorkoutIn30Days(IAthlete athlete)
         {
             var workouts = soapClient.GetWorkoutsForAccessibleAthlete(athlete.TPData.LoginName,
-                athlete.TPData.LoginPassword, athlete.TPData.PersonID, new DateTime(2016, 02, 01), DateTime.Today);
+                athlete.TPData.LoginPassword, athlete.TPData.PersonID, DateTime.Today - TimeSpan.FromDays(30), DateTime.Today);
             var lastworkout = workouts.Last();
+            return CovertTPWorkoutToInternal(lastworkout);
             var extendedWorkoutData = soapClient.GetExtendedWorkoutDataForAccessibleAthlete(athlete.TPData.LoginName,
                 athlete.TPData.LoginPassword, athlete.TPData.PersonID, lastworkout.WorkoutId);
         }
@@ -79,6 +81,7 @@ namespace TrainingPeaksConnection
                 }
                 default:
                 {
+                    internalWorkout = new CycleWorkout();
                     break;
                 }
             }
