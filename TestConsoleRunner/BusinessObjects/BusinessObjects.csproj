@@ -41,6 +41,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Athlete.cs" />
+    <Compile Include="CustomWorkout.cs" />
+    <Compile Include="RunWorkout.cs" />
+    <Compile Include="SwimWorkout.cs" />
     <Compile Include="CycleWorkout.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

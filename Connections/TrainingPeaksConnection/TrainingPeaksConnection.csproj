@@ -42,8 +42,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConnectContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PWX.cs">
+      <DependentUpon>PWX.xsd</DependentUpon>
+    </Compile>
     <Compile Include="Service References\TrainingPeaksServiceReference\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -66,6 +68,9 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="Properties\DataSources\System.Xml.XmlNode.datasource" />
+    <None Include="PWX.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\TrainingPeaksServiceReference\service.wsdl" />
     <None Include="Service References\TrainingPeaksServiceReference\TrainingPeaksConnection.TrainingPeaksServiceReference.ImportFileForUserResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
