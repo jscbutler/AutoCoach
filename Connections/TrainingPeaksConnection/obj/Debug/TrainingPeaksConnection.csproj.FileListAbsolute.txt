@@ -8,3 +8,5 @@ c:\Dev\AutoCoach\Connections\TrainingPeaksConnection\obj\Debug\TrainingPeaksConn
 c:\Dev\AutoCoach\Connections\TrainingPeaksConnection\bin\Debug\TrainingPeaksConnection.dll.config
 c:\Dev\AutoCoach\Connections\TrainingPeaksConnection\bin\Debug\BusinessObjects.dll
 c:\Dev\AutoCoach\Connections\TrainingPeaksConnection\bin\Debug\BusinessObjects.pdb
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection\bin\Debug\ClassLibrary1.dll
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection\bin\Debug\ClassLibrary1.pdb

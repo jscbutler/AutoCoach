@@ -2,6 +2,7 @@
 using BusinessObjects;
 using Public;
 using TrainingPeaksConnection.TrainingPeaksServiceReference;
+using WorkoutCalculator;
 
 namespace TrainingPeaksConnection
 {
@@ -19,7 +20,7 @@ namespace TrainingPeaksConnection
                         internalWorkout = MapSwimWorkout(tpWorkout);
                         break;
                     }
-                case "Cycle":
+                case "Bike":
                     {
                         internalWorkout = MapCycleWorkout(tpWorkout);
                         break;
@@ -36,7 +37,7 @@ namespace TrainingPeaksConnection
                     }
                 default:
                     {
-                        internalWorkout = new CycleWorkout();
+                        internalWorkout = new CustomWorkout();
                         break;
                     }
             }
@@ -60,8 +61,25 @@ namespace TrainingPeaksConnection
             cycleWorkout.HeartRateAverage = tpWorkout.HeartRateAverage;
             cycleWorkout.HeartRateMaximum = tpWorkout.HeartRateMaximum;
             cycleWorkout.HeartRateMinimum = tpWorkout.HeartRateMinimum;
+            //cycleWorkout.TrainingStressScore = tpWorkout.
 
             return cycleWorkout;
+        }
+
+        public static IWorkout MapExtendedCycleWorkout(pwx pwx, IWorkout shortWorkout)
+        {
+            pwxWorkout pwxWo = pwx.workout[0];
+            shortWorkout.TrainingStressScore = pwxWo.summarydata.tss;
+            ICycleWorkout cycleWorkout = shortWorkout as ICycleWorkout;
+            if (cycleWorkout == null)
+                return shortWorkout;
+            PWXDataExtractor dataExtractor = new PWXDataExtractor(pwx);
+            var workoutSamples = dataExtractor.ExtractData();
+            WorkoutSamplesCalculator calc = new WorkoutSamplesCalculator(workoutSamples);
+            cycleWorkout.IntensityFactor = calc.CalcualteIntensityFactor(231);
+            cycleWorkout.NormalizedPower = (int)calc.GetNormalizedPower();
+            
+            return shortWorkout;
         }
 
         public static IWorkout MapSwimWorkout(Workout tpWorkout)

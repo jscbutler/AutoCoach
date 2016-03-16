@@ -63,6 +63,10 @@
       <Project>{db3f6f13-6292-4301-87ef-2d5aa1b81890}</Project>
       <Name>Public</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\WorkoutCalulator\ClassLibrary1\WorkoutCalculator.csproj">
+      <Project>{862d6d76-9fa8-466e-b076-18e9231521bd}</Project>
+      <Name>WorkoutCalculator</Name>
+    </ProjectReference>
     <ProjectReference Include="..\BusinessObjects\BusinessObjects.csproj">
       <Project>{0835a836-fbca-4663-9bcb-233d53f76950}</Project>
       <Name>BusinessObjects</Name>

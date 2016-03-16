@@ -1,24 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Xml;
+using System.Net;
+using System.Xml.Serialization;
 using BusinessObjects;
 using Public;
 using TrainingPeaksConnection.TrainingPeaksServiceReference;
 
 namespace TrainingPeaksConnection
 {
-
-    // IF = NP/FTP
-
-    // TSS = ...x`
-    /// <summary>
-    ///     Normalized Power Calc.
-    ///     1) starting at the 30 s mark, calculate a rolling 30 s average (of the preceeding time points, obviously).
-    ///     2) raise all the values obtained in step #1 to the 4th power.
-    ///     3) take the average of all of the values obtained in step #2. 
-    ///     4) take the 4th root of the value obtained in step #3.
-    /// </summary>
     public class TrainingPeaksClient
     {
         private readonly ServiceSoap soapClient;
@@ -30,14 +21,15 @@ namespace TrainingPeaksConnection
 
         public TrainingPeaksClient()
         {
-            System.Net.ServicePointManager.Expect100Continue = false;
+            ServicePointManager.Expect100Continue = false;
             soapClient = new ServiceSoapClient("ServiceSoap");
         }
 
         public void GetAthleteData(IAthlete theAthlete)
         {
             var accessibleAthletes = soapClient.GetAccessibleAthletes(theAthlete.TPData.LoginName,
-                theAthlete.TPData.LoginPassword, TrainingPeaksWorkoutMappings.AccountTypeMapping(theAthlete.TPData.AccountType));
+                theAthlete.TPData.LoginPassword,
+                TrainingPeaksWorkoutMappings.AccountTypeMapping(theAthlete.TPData.AccountType));
             if (accessibleAthletes.Length < 1)
                 throw new Exception("No Athlete Data returned from GetAccessibleAthletes");
             if (accessibleAthletes.Length > 1)
@@ -49,8 +41,8 @@ namespace TrainingPeaksConnection
 
         public IWorkout GetLastWorkoutIn30Days(IAthlete athlete)
         {
-            var workouts = GetAllWorkoutsInDateRange(athlete, DateTime.Now-TimeSpan.FromDays(30), DateTime.Now);
-            return workouts[workouts.Count -2];
+            var workouts = GetAllWorkoutsInDateRange(athlete, DateTime.Now - TimeSpan.FromDays(30), DateTime.Now);
+            return workouts[0];
         }
 
         public List<IWorkout> GetWorkoutsInLast30Days(IAthlete athlete)
@@ -67,10 +59,21 @@ namespace TrainingPeaksConnection
             return internalWorkoutList;
         }
 
-        public XmlNode GetExtendedWorkoutData(IAthlete athlete, IWorkout workout)
+        public pwx GetExtendedWorkoutData(IAthlete athlete, IWorkout workout)
         {
-            return workout.ExtendedPwXmlNode = soapClient.GetExtendedWorkoutDataForAccessibleAthlete(athlete.TPData.LoginName,
-                athlete.TPData.LoginPassword, athlete.TPData.PersonID, workout.TPWorkoutID);
+            var stm = new MemoryStream();
+            var stw = new StreamWriter(stm);
+            var xmlData =
+                workout.ExtendedPwXmlNode =
+                    soapClient.GetExtendedWorkoutDataForAccessibleAthlete(athlete.TPData.LoginName,
+                        athlete.TPData.LoginPassword, athlete.TPData.PersonID, workout.TPWorkoutID);
+            stw.Write(xmlData.OuterXml);
+            stw.Flush();
+            stm.Position = 0;
+            var ser = new XmlSerializer(typeof (pwx));
+            var pwxObj = ser.Deserialize(stm);
+            workout.pwxData = pwxObj;
+            return pwxObj as pwx;
         }
     }
 }

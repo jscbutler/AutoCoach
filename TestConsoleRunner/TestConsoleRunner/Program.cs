@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Xml;
+using System.Globalization;
 using BusinessObjects;
 using Public;
 using TrainingPeaksConnection;
+using WorkoutCalculator;
 
 namespace TestConsoleRunner
 {
@@ -17,7 +18,9 @@ namespace TestConsoleRunner
                     LoginName = "jscbutler",
                     LoginPassword = "xcelite1",
                     AccountType = TrainingPeaksAthleteAccountTypes.SelfCoachedPremium
-                }
+                },
+                FTBikePower = 260,
+                WeightKilos = 86.3
             };
             Console.Out.WriteLine("Starting connection to TrainingPeaks....");
 
@@ -27,8 +30,29 @@ namespace TestConsoleRunner
             Console.Out.WriteLine("Received Person Data - " + athlete.TPData.AthleteName + " ID:" +
                                   athlete.TPData.PersonID);
             Console.Out.WriteLine("Accesing last workout for " + athlete.TPData.AthleteName);
-            var workout = conn.GetLastWorkoutIn30Days(athlete);
-            XmlNode pwxData = conn.GetExtendedWorkoutData(athlete, workout);
+            //var workout = conn.GetLastWorkoutIn30Days(athlete);
+            //pwx pwxData = conn.GetExtendedWorkoutData(athlete, workout);
+            var fromDate = DateTime.ParseExact("29/12/2015", "dd/MM/yyyy", CultureInfo.InvariantCulture);
+            var toDate = DateTime.ParseExact("30/01/2016", "dd/MM/yyyy", CultureInfo.InvariantCulture);
+            var workouts = conn.GetAllWorkoutsInDateRange(athlete, fromDate,toDate);
+            foreach (var workout in workouts)
+            {
+                if (workout.SportType == SportType.Bike)
+                {
+                    var pwxData = conn.GetExtendedWorkoutData(athlete, workout);
+                    var extractor = new PWXDataExtractor(pwxData);
+                    var workoutSamples = extractor.ExtractData();
+                    var calculator = new WorkoutSamplesCalculator(workoutSamples);
+                    Console.Out.WriteLine(workout.SportType + " on " + workout.StartDate + " TSS: " + workoutSamples.SummaryTrainingStressScore + " Duration: " + workout.Duration);
+                    var cadenceRanges = calculator.ClassifyWorkoutCadenceRanges();
+                    foreach (var cadenceRange in cadenceRanges)
+                    {
+                        Console.WriteLine(cadenceRange);
+                    }
+                    Console.WriteLine("==========================================");
+                }
+            }
+
             Console.In.ReadLine();
         }
     }

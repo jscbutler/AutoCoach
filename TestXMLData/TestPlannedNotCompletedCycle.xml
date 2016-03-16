@@ -1,0 +1,13 @@
+<pwx xmlns:xsd="http://www.w3.org/2001/XMLSchema\" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance\" version="1.0" creator="Training Peaks\" xmlns="http://www.peaksware.com/PWX/1/0\">
+  <workout>
+    
+    <sportType>Bike</sportType>
+    <title>High/Low cadence Short intervals</title>
+    <cmt />
+    <time>2016-01-01T00:00:00</time>
+    <summarydata>
+      <beginning>0</beginning>
+      <duration>0</duration>
+    </summarydata>
+  </workout>
+</pwx>

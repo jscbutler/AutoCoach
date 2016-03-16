@@ -1,0 +1,105 @@
+﻿<pwx xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.0" creator="Training Peaks" xmlns="http://www.peaksware.com/PWX/1/0">
+  <workout>
+    <sportType>Bike</sportType>
+    <cmt />
+    <device>
+      <make>Garmin</make>
+      <model>Garmin Forerunner 920XT</model>
+      <stopdetectionsetting>2</stopdetectionsetting>
+    </device>
+    <time>2016-01-29T19:13:40</time>
+    <summarydata>
+      <beginning>0</beginning>
+      <duration>10.018</duration>
+      <work>3731.6342901494213</work>
+      <tss>110.69</tss>
+      <hr max="167" min="55" avg="135" />
+      <pwr max="496" avg="182" />
+      <cad min="122" avg="83" />
+      <dist>0</dist>
+      <alt max="424.39999389648438" min="414.60000610351562" avg="420.1346435546875" />
+      <climbingelevation>5.20001220703125</climbingelevation>
+    </summarydata>
+    <segment>
+      <name>Lap 1</name>
+      <summarydata>
+        <beginning>0</beginning>
+        <duration>10.018</duration>
+        <hr max="167" min="55" avg="135" />
+        <spd />
+        <pwr max="496" avg="182" />
+        <cad max="122" avg="77" />
+        <alt max="424.39999389648438" min="414.60000610351562" avg="420.1346435546875" />
+      </summarydata>
+    </segment>
+    <event>
+      <timeoffset>0</timeoffset>
+      <type>Starting</type>
+    </event>
+    <sample>
+      <timeoffset>0</timeoffset>
+      <hr>97</hr>
+      <spd>0</spd>
+      <pwr>73</pwr>
+      <cad>20</cad>
+      <dist>0</dist>
+      <alt>414.79998779296875</alt>
+      <grade>0</grade>
+    </sample>
+    <sample>
+      <timeoffset>1</timeoffset>
+      <hr>94</hr>
+      <spd>0</spd>
+      <cad>44</cad>
+      <dist>0</dist>
+      <alt>414.60000610351562</alt>
+    </sample>
+    <sample>
+      <timeoffset>2</timeoffset>
+      <hr>90</hr>
+      <spd>0</spd>
+      <cad>63</cad>
+      <dist>0</dist>
+      <alt>414.79998779296875</alt>
+    </sample>
+    <sample>
+      <timeoffset>3</timeoffset>
+      <hr>86</hr>
+      <spd>0</spd>
+      <cad>64</cad>
+      <dist>0</dist>
+      <alt>414.79998779296875</alt>
+    </sample>
+    <sample>
+      <timeoffset>4</timeoffset>
+      <hr>87</hr>
+      <spd>0</spd>
+      <pwr>73</pwr>
+      <cad>82</cad>
+      <dist>0</dist>
+      <alt>415.20001220703125</alt>
+    </sample>
+    <sample>
+      <timeoffset>5</timeoffset>
+      <hr>87</hr>
+      <spd>0</spd>
+      <pwr>0</pwr>
+      <cad>95</cad>
+      <dist>0</dist>
+      <alt>415.20001220703125</alt>
+    </sample>
+    <sample>
+      <timeoffset>6</timeoffset>
+      <hr>86</hr>
+      <spd>0</spd>
+      <pwr>0</pwr>
+      <cad>103</cad>
+      <dist>0</dist>
+      <alt>415.20001220703125</alt>
+    </sample>
+    <event>
+      <timeoffset>10</timeoffset>
+      <type>Stopping</type>
+    </event>
+  </workout>
+</pwx>

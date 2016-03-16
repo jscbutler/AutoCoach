@@ -12,8 +12,8 @@ namespace BusinessObjects
         }
 
         public SportType SportType { get; }
-        public double? TrainingStressScore { get; }
-        public double? IntensityFactor { get; }
+        public double? TrainingStressScore { get; set; }
+        public double? IntensityFactor { get; set; }
         DateTime? IWorkout.StartDate { get; set; }
         DateTime? IWorkout.StartTime { get; set; }
         TimeSpan? IWorkout.Duration { get; set; }
@@ -26,8 +26,10 @@ namespace BusinessObjects
         public int? HeartRateAverage { get; set; }
         public int? HeartRateMaximum { get; set; }
         public int? HeartRateMinimum { get; set; }
+        public int? NormalizedPower { get; set; }
         public double? DistanceInMeters { get; set; }
         public int TPWorkoutID { get; set; }
         public XmlNode ExtendedPwXmlNode { get; set; }
+        public object pwxData { get; set; }
     }
 }

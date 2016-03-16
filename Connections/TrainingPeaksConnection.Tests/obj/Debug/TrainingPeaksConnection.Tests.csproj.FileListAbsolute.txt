@@ -25,3 +25,5 @@ c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\xunit.core.
 c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\xunit.core.xml
 c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\xunit.execution.desktop.pdb
 c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\xunit.execution.desktop.xml
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\ClassLibrary1.dll
+c:\Dev\AutoCoach\Connections\TrainingPeaksConnection.Tests\bin\Debug\ClassLibrary1.pdb

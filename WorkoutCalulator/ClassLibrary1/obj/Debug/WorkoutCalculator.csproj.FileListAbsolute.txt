@@ -1,0 +1,9 @@
+c:\Dev\AutoCoach\WorkoutCalulator\ClassLibrary1\obj\Debug\WorkoutCalculator.csprojResolveAssemblyReference.cache
+c:\Dev\AutoCoach\WorkoutCalulator\ClassLibrary1\bin\Debug\ClassLibrary1.dll
+c:\Dev\AutoCoach\WorkoutCalulator\ClassLibrary1\bin\Debug\ClassLibrary1.pdb
+c:\Dev\AutoCoach\WorkoutCalulator\ClassLibrary1\bin\Debug\BusinessObjects.dll
+c:\Dev\AutoCoach\WorkoutCalulator\ClassLibrary1\bin\Debug\Public.dll
+c:\Dev\AutoCoach\WorkoutCalulator\ClassLibrary1\bin\Debug\Public.pdb
+c:\Dev\AutoCoach\WorkoutCalulator\ClassLibrary1\bin\Debug\BusinessObjects.pdb
+c:\Dev\AutoCoach\WorkoutCalulator\ClassLibrary1\obj\Debug\ClassLibrary1.dll
+c:\Dev\AutoCoach\WorkoutCalulator\ClassLibrary1\obj\Debug\ClassLibrary1.pdb

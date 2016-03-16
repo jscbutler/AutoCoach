@@ -21,6 +21,10 @@
         string Name { get; }
         AthleteDiscipline Discipline { get; }
         ITrainingPeaksAthleteData TPData { get; set; }
+        double FTBikePower { get; set; }
+        double FTRunSpeed { get; set; }
+        double CSSSwimSpeed { get; set; }
+        double WeightKilos { get; set; }
     }
 
     public interface ISportData
