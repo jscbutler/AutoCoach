@@ -69,14 +69,16 @@ namespace TrainingPeaksConnection
         public static IWorkout MapExtendedCycleWorkout(pwx pwx, IWorkout shortWorkout)
         {
             pwxWorkout pwxWo = pwx.workout[0];
+            IAthlete athlete = new Athlete();
+            athlete.FTBikePower = 231;
             shortWorkout.TrainingStressScore = pwxWo.summarydata.tss;
             ICycleWorkout cycleWorkout = shortWorkout as ICycleWorkout;
             if (cycleWorkout == null)
                 return shortWorkout;
             PWXDataExtractor dataExtractor = new PWXDataExtractor(pwx);
             var workoutSamples = dataExtractor.ExtractData();
-            WorkoutSamplesCalculator calc = new WorkoutSamplesCalculator(workoutSamples);
-            cycleWorkout.IntensityFactor = calc.CalcualteIntensityFactor(231);
+            WorkoutSamplesCalculator calc = new WorkoutSamplesCalculator(workoutSamples, athlete);
+            cycleWorkout.IntensityFactor = calc.CalcualteIntensityFactor();
             cycleWorkout.NormalizedPower = (int)calc.GetNormalizedPower();
             
             return shortWorkout;

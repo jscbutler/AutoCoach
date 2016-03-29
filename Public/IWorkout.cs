@@ -23,6 +23,25 @@ namespace Public
         Spinning
     }
 
+    public interface IRange
+    {
+        int MaxValue { get; set; }
+        int MinValue { get; set; }
+        int QuanityOfSamples { get; set; }
+        double PercentOfTotal { get; set; }
+        string ToString();
+    }
+
+
+    public interface IEnergySystemRange : IRange
+    {
+        WorkoutEnergySystemFocus EnergySystemFocus { get; set; }
+    }
+    public interface ICadenceRange : IRange
+    {
+        WorkoutCadenceFocus RangeFocus { get; set; }
+    }
+
     public interface IWorkout
     {
         SportType SportType { get; }

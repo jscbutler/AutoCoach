@@ -32,8 +32,8 @@ namespace TestConsoleRunner
             Console.Out.WriteLine("Accesing last workout for " + athlete.TPData.AthleteName);
             //var workout = conn.GetLastWorkoutIn30Days(athlete);
             //pwx pwxData = conn.GetExtendedWorkoutData(athlete, workout);
-            var fromDate = DateTime.ParseExact("29/12/2015", "dd/MM/yyyy", CultureInfo.InvariantCulture);
-            var toDate = DateTime.ParseExact("30/01/2016", "dd/MM/yyyy", CultureInfo.InvariantCulture);
+            var fromDate = DateTime.ParseExact("20/03/2016", "dd/MM/yyyy", CultureInfo.InvariantCulture);
+            var toDate = DateTime.ParseExact("30/03/2016", "dd/MM/yyyy", CultureInfo.InvariantCulture);
             var workouts = conn.GetAllWorkoutsInDateRange(athlete, fromDate,toDate);
             foreach (var workout in workouts)
             {
@@ -42,7 +42,7 @@ namespace TestConsoleRunner
                     var pwxData = conn.GetExtendedWorkoutData(athlete, workout);
                     var extractor = new PWXDataExtractor(pwxData);
                     var workoutSamples = extractor.ExtractData();
-                    var calculator = new WorkoutSamplesCalculator(workoutSamples);
+                    var calculator = new WorkoutSamplesCalculator(workoutSamples, athlete);
                     Console.Out.WriteLine(workout.SportType + " on " + workout.StartDate + " TSS: " + workoutSamples.SummaryTrainingStressScore + " Duration: " + workout.Duration);
                     var cadenceRanges = calculator.ClassifyWorkoutCadenceRanges();
                     foreach (var cadenceRange in cadenceRanges)

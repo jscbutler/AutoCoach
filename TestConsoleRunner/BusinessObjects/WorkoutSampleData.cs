@@ -24,12 +24,11 @@ namespace BusinessObjects
         }
     }
 
-    public class Range
+   
+
+    public class Range : IRange
     {
-        public readonly int MaxValue;
-        public readonly int MinValue;
-        public int QuanityOfSamples;
-        public double PercentOfTotal;
+        
         public Range(int min, int max)
         {
             MinValue = min;
@@ -38,16 +37,21 @@ namespace BusinessObjects
             PercentOfTotal = 0;
         }
 
+        public int MaxValue { get; set; }
+        public int MinValue { get; set; }
+        public int QuanityOfSamples { get; set; }
+        public double PercentOfTotal { get; set; }
+
         public override string ToString()
         {
             return " Samples:" + QuanityOfSamples + " PercentOtTotal:" + PercentOfTotal + "%";
         }
     }
 
-    public class CadenceRange : Range
+
+    public class CadenceRange : Range, ICadenceRange
     {
         
-        public readonly WorkoutCadenceFocus RangeFocus;
        public CadenceRange(int min, int max, WorkoutCadenceFocus rangeFocus)
             : base(min, max)
         {            
@@ -58,10 +62,14 @@ namespace BusinessObjects
             return "RangeFocus:" + RangeFocus + base.ToString();
         }
 
+        public WorkoutCadenceFocus RangeFocus { get; set; }
     }
-    public class EnergySystemRange : Range
+
+   
+
+    public class EnergySystemRange : Range, IEnergySystemRange
     {
-        public readonly WorkoutEnergySystemFocus EnergySystemFocus;
+       
         public EnergySystemRange(int min, int max, WorkoutEnergySystemFocus rangeFocus)
             : base (min,max)
         {            
@@ -72,6 +80,7 @@ namespace BusinessObjects
             return "EnergySystemRangeFocus:" + EnergySystemFocus + base.ToString();
         }
 
+        public WorkoutEnergySystemFocus EnergySystemFocus { get; set; }
     }
 
     public class WorkoutSampleVector

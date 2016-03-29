@@ -4,6 +4,7 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 using BusinessObjects;
+using Public;
 using Xunit;
 
 namespace WorkoutCalculator.Tests
@@ -90,7 +91,8 @@ namespace WorkoutCalculator.Tests
             Initialise();
             var calc = new PWXDataExtractor(_test);
             var workoutSample = calc.ExtractData();
-            var workoutCalculator = new WorkoutSamplesCalculator(workoutSample);
+            IAthlete athlete = new Athlete();
+            var workoutCalculator = new WorkoutSamplesCalculator(workoutSample,athlete);
             var myPowerAverage = workoutCalculator.GetAveragePower();
             var pwxSummaryPowerAverage = _test.workout[0].summarydata.pwr.avg;
             myPowerAverage = Math.Round(myPowerAverage);
@@ -103,7 +105,8 @@ namespace WorkoutCalculator.Tests
             Initialise();
             var calc = new PWXDataExtractor(_test);
             var workoutSample = calc.ExtractData();
-            var workoutCalculator = new WorkoutSamplesCalculator(workoutSample);
+            IAthlete athlete = new Athlete();
+            var workoutCalculator = new WorkoutSamplesCalculator(workoutSample, athlete);
             var myPowerAverage = workoutCalculator.GetNormalizedPower();
             Assert.Equal(231, myPowerAverage);
         }
@@ -114,8 +117,10 @@ namespace WorkoutCalculator.Tests
             Initialise();
             var calc = new PWXDataExtractor(_test);
             var workoutSample = calc.ExtractData();
-            var workoutCalculator = new WorkoutSamplesCalculator(workoutSample);
-            var intensityFactor = workoutCalculator.CalcualteIntensityFactor(240);
+            IAthlete athlete = new Athlete();
+            athlete.FTBikePower = 240;
+            var workoutCalculator = new WorkoutSamplesCalculator(workoutSample,athlete);
+            var intensityFactor = workoutCalculator.CalcualteIntensityFactor();
             Assert.Equal(0.96, intensityFactor);
         }
 
@@ -125,7 +130,8 @@ namespace WorkoutCalculator.Tests
             Initialise();
             var calc = new PWXDataExtractor(_test);
             var workoutSample = calc.ExtractData();
-            var workoutCalculator = new WorkoutSamplesCalculator(workoutSample);
+            IAthlete athlete = new Athlete();
+            var workoutCalculator = new WorkoutSamplesCalculator(workoutSample,athlete);
             var myCadAverage = workoutCalculator.GetAverageCadence();
             var pwxSummaryCadAverage = _test.workout[0].summarydata.cad.avg;
             myCadAverage = Math.Round(myCadAverage);
@@ -138,7 +144,8 @@ namespace WorkoutCalculator.Tests
             Initialise();
             var calc = new PWXDataExtractor(_test);
             var workoutSample = calc.ExtractData();
-            var workoutCalculator = new WorkoutSamplesCalculator(workoutSample);
+            IAthlete athlete = new Athlete();
+            var workoutCalculator = new WorkoutSamplesCalculator(workoutSample, athlete);
             var myCadAverage = workoutCalculator.GetAverageHeartRate();
             var pwxSummaryAvgHR = _test.workout[0].summarydata.hr.avg;
             myCadAverage = Math.Round(myCadAverage);
@@ -151,7 +158,8 @@ namespace WorkoutCalculator.Tests
             Initialise();
             var calc = new PWXDataExtractor(_test);
             var workoutSample = calc.ExtractData();
-            var workoutCalculator = new WorkoutSamplesCalculator(workoutSample);
+            IAthlete athlete = new Athlete();
+            var workoutCalculator = new WorkoutSamplesCalculator(workoutSample,athlete);
             var mySpdAverage = workoutCalculator.GetAverageSpeed();
             // double pwxSummaryAvgHR = _test.workout[0].summarydata.spd.avg;
             mySpdAverage = Math.Round(mySpdAverage);
@@ -164,7 +172,8 @@ namespace WorkoutCalculator.Tests
             Initialise();
             var calc = new PWXDataExtractor(_test);
             var workoutSample = calc.ExtractData();
-            var workoutCalculator = new WorkoutSamplesCalculator(workoutSample);
+            IAthlete athlete = new Athlete();
+            var workoutCalculator = new WorkoutSamplesCalculator(workoutSample, athlete);
             var summaryTSS = _test.workout[0].summarydata.tss;
             var roundedTPTSS = Math.Round(summaryTSS, 0);
             var myTSSCalc = workoutCalculator.Calculate_Power_TrainingStressScore(272);
@@ -180,10 +189,10 @@ namespace WorkoutCalculator.Tests
                     GetSamplePwxFile(@"c:\dev\autocoach\testxmldata\TestTurboPowerCyclePZoneClassificationPWX.xml"));
             var dataExtractor = new PWXDataExtractor(pwx);
             var workoutSample = dataExtractor.ExtractData();
-            
-            var workoutCalculator = new WorkoutSamplesCalculator(workoutSample);
+            IAthlete athlete = new Athlete();
+            var workoutCalculator = new WorkoutSamplesCalculator(workoutSample,athlete);
             var buckets = workoutCalculator.ClassifyWorkoutCadenceRanges();
-            Assert.IsType<List<CadenceRange>>(buckets);
+            Assert.IsType<List<ICadenceRange>>(buckets);
             Assert.Equal(1, buckets[0].QuanityOfSamples);
             Assert.Equal(14, buckets[0].PercentOfTotal);
             Assert.Equal(3, buckets[1].QuanityOfSamples);
@@ -226,9 +235,10 @@ namespace WorkoutCalculator.Tests
             Initialise();
             var data = new PWXDataExtractor(_test);
             var samples = data.ExtractData();
-            var calc = new WorkoutSamplesCalculator(samples);
+            IAthlete athlete = new Athlete();
+            var calc = new WorkoutSamplesCalculator(samples, athlete);
             var systems = calc.ClassifyWorkoutPowerRanges(240);
-            Assert.IsType<List<EnergySystemRange>> (systems);
+            Assert.IsType<List<IEnergySystemRange>> (systems);
         }
 
         [Fact]
@@ -237,16 +247,18 @@ namespace WorkoutCalculator.Tests
             Initialise();
             var data = new PWXDataExtractor(_test);
             var samples = data.ExtractData();
-            var calc = new WorkoutSamplesCalculator(samples);
+            IAthlete athlete = new Athlete();
+            var calc = new WorkoutSamplesCalculator(samples, athlete);
             var systems = calc.ClassifyWorkoutEnergeRangesFromHeartRate(160);
-            Assert.IsType<List<EnergySystemRange>>(systems);
+            Assert.IsType<List<IEnergySystemRange>>(systems);
         }
         
         [Fact]
         public void CalculateVectorAverage_With_No_Samples_Returns_Zero()
         {
             var samples = new WorkoutSamples(0);
-            var workoutCalculator = new WorkoutSamplesCalculator(samples);
+            IAthlete athlete = new Athlete();
+            var workoutCalculator = new WorkoutSamplesCalculator(samples, athlete);
             var average = workoutCalculator.GetAverageCadence();
             Assert.Equal(0, average);
         }
@@ -255,7 +267,8 @@ namespace WorkoutCalculator.Tests
         public void CalculateNormalizedPower_With_No_Samples_Returns_Zero()
         {
             var samples = new WorkoutSamples(0);
-            var workoutCalculator = new WorkoutSamplesCalculator(samples);
+            IAthlete athlete = new Athlete();
+            var workoutCalculator = new WorkoutSamplesCalculator(samples,athlete);
             var average = workoutCalculator.GetNormalizedPower();
             Assert.Equal(0, average);
         }
@@ -268,7 +281,8 @@ namespace WorkoutCalculator.Tests
             var vector = new WorkoutSampleVector(2, WorkoutSampleDataType.Power);
             vector.AddPoint(1, 2);
             vector.AddPoint(2, 4);
-            var workoutCalculator = new WorkoutSamplesCalculator(samples);
+            IAthlete athlete = new Athlete();
+            var workoutCalculator = new WorkoutSamplesCalculator(samples, athlete);
             var average = workoutCalculator.CalculateVectorNormalizedAverage(vector);
             Assert.Equal(3, average);
         }
@@ -280,9 +294,10 @@ namespace WorkoutCalculator.Tests
             var vector = new WorkoutSampleVector(1, WorkoutSampleDataType.Cadence);
             vector.AddPoint(1, 2);
             samples.CadenceVector = vector;
-            var workoutCalculator = new WorkoutSamplesCalculator(samples);
+            IAthlete athlete = new Athlete();
+            var workoutCalculator = new WorkoutSamplesCalculator(samples, athlete);
             var classification = workoutCalculator.ClassifyWorkoutCadenceRanges();
-            Assert.IsType<List<CadenceRange>>(classification);
+            Assert.IsType<List<ICadenceRange>>(classification);
         }
 
         [Fact]
@@ -293,7 +308,8 @@ namespace WorkoutCalculator.Tests
             vector.AddPoint(1, 2);
             vector.AddPoint(2, 4);
             vector.AddPoint(3, 0);
-            var workoutCalculator = new WorkoutSamplesCalculator(samples);
+            IAthlete athlete = new Athlete();
+            var workoutCalculator = new WorkoutSamplesCalculator(samples,athlete);
             var average = workoutCalculator.CalculateNonZeroVectorAverage(vector);
             Assert.Equal(3, average);
         }
@@ -303,7 +319,8 @@ namespace WorkoutCalculator.Tests
         {
             var samples = new WorkoutSamples(0);
             var vector = new WorkoutSampleVector(3, WorkoutSampleDataType.Power);
-            var workoutCalculator = new WorkoutSamplesCalculator(samples);
+            IAthlete athlete = new Athlete();
+            var workoutCalculator = new WorkoutSamplesCalculator(samples, athlete);
             var average = workoutCalculator.CalculateNonZeroVectorAverage(vector);
             Assert.Equal(0, average);
         }

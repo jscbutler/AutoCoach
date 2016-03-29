@@ -50,6 +50,7 @@
     <Compile Include="SwimWorkout.cs" />
     <Compile Include="CycleWorkout.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TrainingCalendarDay.cs" />
     <Compile Include="WorkoutSampleData.cs" />
   </ItemGroup>
   <ItemGroup>

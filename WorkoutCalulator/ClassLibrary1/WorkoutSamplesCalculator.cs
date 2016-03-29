@@ -3,79 +3,47 @@ using System.Collections.Generic;
 using System.Linq;
 using BusinessObjects;
 using Public;
+using static System.Double;
 
 namespace WorkoutCalculator
 {
     public class WorkoutSamplesCalculator
     {
-        private readonly IList<CadenceRange> _cadenceRanges = new List<CadenceRange>(5);
-        public readonly IList<EnergySystemRange> _powerEnergyRanges = new List<EnergySystemRange>(6);
-        public readonly IList<EnergySystemRange> _heartRateEnergyRanges = new List<EnergySystemRange>(6);
+        private readonly WorkoutSamples _workoutSamples;
+        private double _intensityFactor = NaN;
+        private double _normalizedPower = NaN;
+        private readonly IAthlete _athlete;
 
-        private readonly WorkoutSamples workoutSamples;
-        private double _intensityFactor = double.NaN;
-        private double _normalizedPower = double.NaN;
-        private double _trainingStrssScorePower = double.NaN;
-
-        public WorkoutSamplesCalculator(WorkoutSamples woSamples)
+        public WorkoutSamplesCalculator(WorkoutSamples woSamples, IAthlete athlete)
         {
-            workoutSamples = woSamples;
-            // Can externally define these ranges later.
-            _cadenceRanges.Add(new CadenceRange(0, 40, WorkoutCadenceFocus.None));
-            _cadenceRanges.Add(new CadenceRange(40, 65, WorkoutCadenceFocus.Grinding));
-            _cadenceRanges.Add(new CadenceRange(65, 80, WorkoutCadenceFocus.Climbing));
-            _cadenceRanges.Add(new CadenceRange(80, 100, WorkoutCadenceFocus.Normal));
-            _cadenceRanges.Add(new CadenceRange(100, 250, WorkoutCadenceFocus.Spinning));
-
-            _powerEnergyRanges.Add(new EnergySystemRange(0,55,WorkoutEnergySystemFocus.Zone1));
-            _powerEnergyRanges.Add(new EnergySystemRange(55, 75, WorkoutEnergySystemFocus.Zone2));
-            _powerEnergyRanges.Add(new EnergySystemRange(75, 90, WorkoutEnergySystemFocus.Zone3));
-            _powerEnergyRanges.Add(new EnergySystemRange(90, 105, WorkoutEnergySystemFocus.Zone4));
-            _powerEnergyRanges.Add(new EnergySystemRange(105, 120, WorkoutEnergySystemFocus.Zone5));
-            _powerEnergyRanges.Add(new EnergySystemRange(120, 10000, WorkoutEnergySystemFocus.Zone6));
-
-            _heartRateEnergyRanges.Add(new EnergySystemRange(0, 81, WorkoutEnergySystemFocus.Zone1));
-            _heartRateEnergyRanges.Add(new EnergySystemRange(81, 89, WorkoutEnergySystemFocus.Zone2));
-            _heartRateEnergyRanges.Add(new EnergySystemRange(90, 94, WorkoutEnergySystemFocus.Zone3));
-            _heartRateEnergyRanges.Add(new EnergySystemRange(94, 103, WorkoutEnergySystemFocus.Zone4));
-            _heartRateEnergyRanges.Add(new EnergySystemRange(103, 105, WorkoutEnergySystemFocus.Zone5));
-            _heartRateEnergyRanges.Add(new EnergySystemRange(105, 10000, WorkoutEnergySystemFocus.Zone6));
-
-            // Run Pace
-            //        Zone 1 Slower than 129% of FTP
-            //Zone 2 114% to 129% of FTP
-            //Zone 3 106% to 113% of FTP
-            //Zone 4 99% to 105% of FTP
-            //Zone 5a 97% to 100% of FTP
-            //Zone 5b 90% to 96% of FTP
-            //Zone 5c Faster than 90% of FTP           
-
+            _workoutSamples = woSamples;
+            _athlete = athlete;
         }
 
         public double GetAveragePower()
         {
-            return CalculateVectorAverage(workoutSamples.PowerVector);
+            return CalculateVectorAverage(_workoutSamples.PowerVector);
         }
 
         public double GetNormalizedPower()
         {
-            _normalizedPower = CalculateVectorNormalizedAverage(workoutSamples.PowerVector);
+            _normalizedPower = CalculateVectorNormalizedAverage(_workoutSamples.PowerVector);
             return _normalizedPower;
         }
 
         public double GetAverageCadence()
         {
-            return CalculateVectorAverage(workoutSamples.CadenceVector);
+            return CalculateVectorAverage(_workoutSamples.CadenceVector);
         }
 
         public double GetAverageHeartRate()
         {
-            return CalculateVectorAverage(workoutSamples.HeartRateVector);
+            return CalculateVectorAverage(_workoutSamples.HeartRateVector);
         }
 
         public double GetAverageSpeed()
         {
-            return CalculateVectorAverage(workoutSamples.SpeedVector);
+            return CalculateVectorAverage(_workoutSamples.SpeedVector);
         }
 
         internal double CalculateVectorAverage(WorkoutSampleVector vector)
@@ -148,52 +116,61 @@ namespace WorkoutCalculator
             return average;
         }
 
-        public double CalcualteIntensityFactor(double ftPower)
+        public double CalcualteIntensityFactor()
         {
-            if (double.IsNaN(_normalizedPower))
-                _normalizedPower = CalculateVectorNormalizedAverage(workoutSamples.PowerVector);
-            _intensityFactor = Math.Round(_normalizedPower/ftPower, 2);
+            if (IsNaN(_normalizedPower))
+                _normalizedPower = CalculateVectorNormalizedAverage(_workoutSamples.PowerVector);
+            CalcIf();
             return _intensityFactor;
+        }
+
+        private void CalcIf()
+        {
+            _intensityFactor = Math.Round(_normalizedPower / _athlete.FTBikePower, 2);
         }
 
         public double Calculate_Power_TrainingStressScore(double ftPower)
         {
             //TSS = (sec x NP x _intensityFactor)/ (FTP x 3600) x 100
-            var sec =
-                workoutSamples.PowerVector.Vector[workoutSamples.PowerVector.NumberOfSamples - 1].timeOffsetSeconds;
-            if (double.IsNaN(_normalizedPower))
-                _normalizedPower = CalculateVectorNormalizedAverage(workoutSamples.PowerVector);
-            if (double.IsNaN(_intensityFactor))
-                _intensityFactor = CalcualteIntensityFactor(ftPower);
-            var numerator = sec*_normalizedPower*0.96;
-            var denominator = ftPower*3600;
-            _trainingStrssScorePower = numerator/denominator*100;
-            return _trainingStrssScorePower;
+            if (_workoutSamples != null)
+            {
+                var sec =
+                    _workoutSamples.PowerVector.Vector[_workoutSamples.PowerVector.NumberOfSamples - 1].timeOffsetSeconds;
+                if (IsNaN(_normalizedPower))
+                    _normalizedPower = CalculateVectorNormalizedAverage(_workoutSamples.PowerVector);
+                if (IsNaN(_intensityFactor))
+                    _intensityFactor = CalcualteIntensityFactor();
+                var numerator = sec*_normalizedPower*0.96;
+                var denominator = ftPower*3600;
+                return numerator/denominator*100;
+            }
+            return 0;
         }
 
-        public IList<CadenceRange>  ClassifyWorkoutCadenceRanges()
+        public IList<ICadenceRange>  ClassifyWorkoutCadenceRanges()
         {
-            ClassifyWorkoutCadenceType(_cadenceRanges, workoutSamples.CadenceVector, 0);
-            return _cadenceRanges;
+            ClassifyWorkoutCadenceType(
+                _athlete.BikeCadenceRanges, _workoutSamples.CadenceVector, 0);
+            return _athlete.BikeCadenceRanges;
         }
 
-        public IList<EnergySystemRange> ClassifyWorkoutPowerRanges(double ftPower)
+        public IList<IEnergySystemRange> ClassifyWorkoutPowerRanges(double ftPower)
         {
-            ClassifyWorkoutCadenceType(_powerEnergyRanges, workoutSamples.PowerVector, ftPower);
-            return _powerEnergyRanges;
+            ClassifyWorkoutCadenceType(_athlete.BikePowerEnergyRanges, _workoutSamples.PowerVector, ftPower);
+            return _athlete.BikePowerEnergyRanges;
         }
-        public IList<EnergySystemRange> ClassifyWorkoutEnergeRangesFromHeartRate(double thresholdHeartRate)
+        public IList<IEnergySystemRange> ClassifyWorkoutEnergeRangesFromHeartRate(double thresholdHeartRate)
         {
-            ClassifyWorkoutCadenceType(_heartRateEnergyRanges, workoutSamples.HeartRateVector, thresholdHeartRate);
-            return _heartRateEnergyRanges;
+            ClassifyWorkoutCadenceType(_athlete.BikeHeartRateEnergyRanges, _workoutSamples.HeartRateVector, thresholdHeartRate);
+            return _athlete.BikeHeartRateEnergyRanges;
         }
 
-        internal IEnumerable<Range> ClassifyWorkoutCadenceType( IEnumerable<Range> ranges,  WorkoutSampleVector vector, double referenceValue)
+        internal IEnumerable<IRange> ClassifyWorkoutCadenceType( IEnumerable<IRange> ranges,  WorkoutSampleVector vector, double referenceValue)
         {
          
             if (vector.NumberOfSamples < 2)
                 return ranges;
-            var rangeList = ranges as IList<Range> ?? ranges.ToList();
+            var rangeList = ranges as IList<IRange> ?? ranges.ToList();
             ClassifyCadenceDataPoint(vector.Vector[0].dataPoint, rangeList, referenceValue);
             for (var i = 1; i < vector.NumberOfSamples; i++)
             {
@@ -214,7 +191,7 @@ namespace WorkoutCalculator
             return rangeList;
         }
 
-        internal void ClassifyCadenceDataPoint(double dataPoint, IList<Range> ranges , double referenceValue)
+        internal void ClassifyCadenceDataPoint(double dataPoint, IList<IRange> ranges , double referenceValue)
         {
             if (referenceValue > 0)
                 dataPoint = (dataPoint/referenceValue)*100; // data as a percentage of the reference.

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TrainingCalendarWeek xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" FirstDateInWeek="2016-03-21T00:00:00" LastDateInWeek="2016-03-28T00:00:00" TrainingPhase="BaseOne" WeeklyTSSTarget="400">
+  <DaysOfWeek Date="2016-03-21T00:00:00" />
+  <DaysOfWeek Date="2016-03-22T00:00:00">
+    <Activities>
+      <SportType>Bike</SportType>
+      <StartTime>2016-03-22T00:00:00</StartTime>
+      <Duration>36000000000</Duration>
+    </Activities>
+  </DaysOfWeek>
+  <DaysOfWeek Date="2016-03-23T00:00:00" />
+  <DaysOfWeek Date="2016-03-24T00:00:00" />
+  <DaysOfWeek Date="2016-03-25T00:00:00" />
+  <DaysOfWeek Date="2016-03-26T00:00:00" />
+  <DaysOfWeek Date="2016-03-27T00:00:00" />
+  <WeekHoursTarget>0</WeekHoursTarget>
+</TrainingCalendarWeek>

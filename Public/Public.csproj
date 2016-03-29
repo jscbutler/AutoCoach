@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IAthlete.cs" />
+    <Compile Include="ITrainingCalendar.cs" />
     <Compile Include="ITrainngPeaks.cs" />
     <Compile Include="IWorkout.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

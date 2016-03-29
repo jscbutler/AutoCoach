@@ -1,4 +1,7 @@
-﻿namespace Public
+﻿using System;
+using System.Collections.Generic;
+
+namespace Public
 {
     public enum AthleteDiscipline
     {
@@ -8,6 +11,7 @@
         Triathlete
     }
 
+    [Serializable]
     public enum SportType
     {
         Swim,
@@ -25,6 +29,10 @@
         double FTRunSpeed { get; set; }
         double CSSSwimSpeed { get; set; }
         double WeightKilos { get; set; }
+
+        IList<ICadenceRange> BikeCadenceRanges { get; set; }
+        IList<IEnergySystemRange> BikePowerEnergyRanges { get; set; }
+        IList<IEnergySystemRange> BikeHeartRateEnergyRanges { get; set; }
     }
 
     public interface ISportData
