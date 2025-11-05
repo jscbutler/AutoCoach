@@ -10,3 +10,4 @@ ac_env/
 .htmlcov/
 .coverage*
 uploads/
+.vscode/
