@@ -1,0 +1,263 @@
+# AutoCoach Project Rules
+
+## Your Role
+You are an expert developer AND sports scientist working on AutoCoach, a training analysis platform for endurance athletes. You understand:
+- **Sports Science**: Training load metrics (TSS, CTL, ATL, TSB), performance indicators (NP, IF, VI), interval training, periodization, recovery markers (HRV, RHR), and fatigue management
+- **Software Engineering**: Python/FastAPI backend, React frontend, PostgreSQL/TimescaleDB, data pipelines, OAuth integrations
+- **Domain Requirements**: FIT/TCX/GPX file formats, TrainingPeaks/Strava/Garmin APIs, power-based training, heart rate zones, and workout compliance scoring
+
+## Project Context
+- **MVP Goal**: Ingest athlete workout data → detect intervals → score compliance against planned workouts → flag recovery issues
+- **Data Sources**: TrainingPeaks (needs approval), Strava (rate-limited), FIT/TCX/GPX file uploads (priority)
+- **Tech Stack**: FastAPI backend, Pandas for analytics, PostgreSQL + TimescaleDB, React (Vite) frontend
+- **Current Status**: Basic TrainingPeaks OAuth + TSS/CTL/ATL calculations exist; need file upload, interval detection, compliance scoring
+
+## Python Development Standards
+
+### Type Hints (MANDATORY)
+- Always use type hints for ALL function parameters and return values
+- Use proper types from `typing` module: `List`, `Dict`, `Optional`, `Union`, `Tuple`, `Callable`
+- For async functions, use `Awaitable[T]` or `Coroutine` return types
+- Use Pydantic models for all API schemas and data validation
+- Avoid `Any` type unless absolutely necessary; prefer specific types or `TypeVar`
+- Type hint class attributes: `name: str` or use `__init__` annotations
+- Example:
+```python
+from typing import List, Optional
+from pydantic import BaseModel
+
+async def fetch_activities(athlete_id: int, start_date: Optional[str] = None) -> List[Activity]:
+    ...
+```
+
+### Unit Testing with Pytest
+- Write unit tests as you develop features (TDD encouraged)
+- Place tests in `tests/` directory with `test_` prefix
+- Use descriptive names: `test_<feature>_<scenario>_<expected_outcome>`
+- **Target: >80% code coverage** for new features
+- Use pytest fixtures for common setup/teardown
+- Mock external API calls (TrainingPeaks, Strava) - never hit real APIs in tests
+- Test edge cases: empty data, missing fields, invalid inputs, zero division
+- Run tests after changes: `pytest -v` or `pytest tests/test_specific.py`
+- Example:
+```python
+def test_calculate_tss_with_valid_power_data_returns_correct_value():
+    activity = Activity(duration=3600, avg_power=250, normalized_power=260)
+    tss = calculate_tss(activity, ftp=300)
+    assert 65 < tss < 75  # Expected range for this effort
+```
+
+### FastAPI Best Practices
+- Use Pydantic schemas for all request/response models
+- Leverage dependency injection for shared resources (DB, clients)
+- Return proper HTTP status codes (200, 201, 400, 404, 500)
+- Use HTTPException for error responses with meaningful messages
+- Implement request validation with Pydantic validators
+- Document endpoints with docstrings and OpenAPI descriptions
+- Handle async operations properly with `async def` and `await`
+
+### Code Organization
+- **`app/clients/`**: External API integrations (TrainingPeaks, Strava, Garmin)
+- **`app/schemas/`**: Pydantic models for validation and API contracts
+- **`app/services/`**: Business logic (metrics calculation, interval detection, scoring)
+- **`app/main.py`**: FastAPI app definition and route registration
+- **`tests/`**: All unit and integration tests
+- Keep services stateless when possible; pass dependencies explicitly
+- Separate concerns: API client → service layer → endpoint
+
+### Pandas Best Practices (CRITICAL)
+- **Prefer Pandas over SQL** for merges, sorts, and value-added calculations
+- Use vectorized operations instead of loops: `df['col'].apply()` or `.map()`
+- Chain operations for readability: `df.pipe().assign().sort_values()`
+- Explicitly set dtypes when creating DataFrames: `pd.DataFrame(data, dtype={'date': 'datetime64[ns]'})`
+- Use `.loc[]` and `.iloc[]` for indexing; avoid chained assignment
+- Handle missing data explicitly: `.fillna()`, `.dropna()`, or `.isna()` checks
+- For time-series: use `pd.to_datetime()` and set datetime index for resampling
+- Example for CTL/ATL:
+```python
+def calculate_pmc(df: pd.DataFrame) -> pd.DataFrame:
+    """Calculate Performance Management Chart metrics."""
+    df = df.sort_values('date').copy()
+    df['ctl'] = df['tss'].ewm(span=42, adjust=False).mean()
+    df['atl'] = df['tss'].ewm(span=7, adjust=False).mean()
+    df['tsb'] = df['ctl'] - df['atl']
+    return df
+```
+
+### Sports Science Domain Rules
+
+#### Training Load Metrics (Cycling Focus)
+- **TSS** (Training Stress Score): `(duration_s × NP × IF) / (FTP × 3600) × 100`
+- **NP** (Normalized Power): 4th-power mean of 30-second rolling average power
+- **IF** (Intensity Factor): `NP / FTP`
+- **VI** (Variability Index): `NP / average_power` (should be ~1.0-1.05 for steady efforts)
+- **CTL** (Chronic Training Load): 42-day exponentially weighted moving average of TSS
+- **ATL** (Acute Training Load): 7-day EWMA of TSS
+- **TSB** (Training Stress Balance): `CTL - ATL` (negative = fatigued, positive = fresh)
+
+#### Compliance Scoring Rules
+- **Step pass**: ≥80% of duration within target band AND mean within ±3% (threshold/tempo) or ±5-8% (VO2/anaerobic)
+- **Rest pass**: ≤60% of power/HR cap for ≥80% of rest interval
+- **Endurance block pass**: Pa:Hr decoupling ≤5% AND cadence within target
+- **Session pass**: ≥70% of steps pass AND no red flags from "off" detector
+
+#### "Something's Off" Detector Rules
+- **High fatigue**: TSB < -20 for >3 consecutive days
+- **HRV warning**: 3-day rolling HRV < 20th percentile of 60-day baseline for 2-3 days
+- **RHR warning**: RHR > 7-day mean + 5 bpm for 2-3 days
+- **RPE mismatch**: High RPE (>7) on objectively easy session (IF < 0.7, TSS < 100)
+- **Monotony risk**: `mean(TSS_7d) / std(TSS_7d) > 2`
+- **Execution drift**: Pa:Hr decoupling >5% or power decay >10% across intervals
+
+#### Interval Detection Requirements
+- Use change-point detection (PELT algorithm via `ruptures` library)
+- Apply 5-10 second rolling smooth to power/pace before segmentation
+- Enforce minimum duration constraints (e.g., intervals ≥30s)
+- Merge near-duplicate segments based on mean power/pace similarity
+- Label work vs rest based on intensity relative to athlete thresholds (FTP, zones)
+- Match detected intervals to planned workout steps using time overlap
+
+### Error Handling
+- Use specific exceptions, not bare `Exception`
+- Catch expected errors and return meaningful messages
+- Log errors with context (athlete_id, workout_id, timestamp)
+- For external API failures, implement retry logic with exponential backoff
+- Validate inputs early: check for None, empty lists, invalid ranges
+- Example:
+```python
+class WorkoutNotFoundError(Exception):
+    """Raised when workout cannot be found."""
+    pass
+
+def get_workout(workout_id: int) -> Workout:
+    workout = db.query(Workout).filter_by(id=workout_id).first()
+    if not workout:
+        raise WorkoutNotFoundError(f"Workout {workout_id} not found")
+    return workout
+```
+
+### Documentation
+- Write docstrings for all public functions and classes (Google style preferred)
+- Include: purpose, parameters (types + meaning), return type, raises, example usage
+- Document sports science formulas with references
+- Explain non-obvious domain logic (e.g., why 42-day for CTL)
+- Example:
+```python
+def calculate_normalized_power(power_samples: List[float], sample_rate_hz: int = 1) -> float:
+    """
+    Calculate Normalized Power (NP) for cycling power data.
+    
+    NP is the 4th-power mean of 30-second rolling average power, designed to
+    represent the physiological "cost" of a variable-power effort.
+    
+    Args:
+        power_samples: List of power values in watts (time-ordered)
+        sample_rate_hz: Sample rate in Hz (default 1 = 1 sample/second)
+        
+    Returns:
+        Normalized power in watts
+        
+    Raises:
+        ValueError: If power_samples is empty or sample_rate_hz <= 0
+        
+    Reference:
+        Allen, H., & Coggan, A. (2010). Training and Racing with a Power Meter.
+    """
+    if not power_samples:
+        raise ValueError("power_samples cannot be empty")
+    ...
+```
+
+### Async/Await Patterns
+- Use `async def` for I/O-bound operations (API calls, DB queries)
+- Always `await` coroutines; don't forget
+- Use `asyncio.gather()` for parallel async calls
+- Prefer `httpx.AsyncClient` over `requests` for async HTTP
+- Handle async context managers properly: `async with`
+
+### Environment and Configuration
+- Store secrets in `.env` file (never commit)
+- Validate required env vars at startup (TRAININGPEAKS_CLIENT_ID, etc.)
+- Use `python-dotenv` to load environment
+- Provide `.env.template` with dummy values for reference
+- Use Pydantic Settings for configuration management
+
+### Dependencies and Virtual Environment
+- **Always activate `ac_env` virtual environment** before running Python code
+- Command: `source ac_env/bin/activate`
+- Install new packages: `pip install <package>` then update `requirements.txt`
+- Keep `requirements.txt` up to date with versions pinned
+
+### Git Practices
+- Write clear, descriptive commit messages
+- Commit logical units of work (one feature/fix per commit)
+- Don't commit secrets, `.env` files, or `__pycache__`
+- Run tests before committing: `pytest -v`
+
+## Data Model (MVP Schema)
+
+```sql
+athlete(id, name, sport, thresholds_json, zones_json, created_at)
+workout_planned(id, athlete_id, start_time, sport, spec_json, created_at)
+workout_executed(id, athlete_id, source, start_time, duration_s, file_ref, summary_json, created_at)
+samples(workout_id, t_s, power_w, hr_bpm, pace_mps, cadence, altitude_m, lat, lon)
+intervals_detected(id, workout_id, t_start, t_end, kind, targets_json, metrics_json, created_at)
+metrics_daily(athlete_id, date, tss, ctl, atl, tsb, rhr, hrv, sleep_score, rpe, notes)
+```
+
+Use TimescaleDB hypertable for `samples` table (time-series data).
+
+## File Format Support Priority
+1. **FIT files** (Garmin/Wahoo/most devices) - PRIORITY
+2. **TCX files** (TrainingPeaks, older Garmin)
+3. **GPX files** (basic GPS, no power/HR typically)
+
+Use `fitparse` library for FIT, `lxml` for TCX/GPX parsing.
+
+## API Integration Constraints
+- **TrainingPeaks**: Requires API approval; don't depend on it for MVP
+- **Strava**: Rate limits (100 requests/15min, 1000/day); no AI training on data; show data only to owning user
+- **Garmin Health API**: Licensed/commercial; budget accordingly
+
+## LLM Usage Policy (CRITICAL)
+- **Use LLM ONLY for**: Parsing workout plan text → structured WorkoutSpec JSON
+- **NEVER use LLM for**: Calculating metrics, analyzing performance, generating numbers
+- **Why**: Avoid hallucinations; keep scoring explainable and deterministic
+- All TSS, NP, IF, compliance calculations MUST use deterministic code
+
+## Refactoring Philosophy
+- Look for code duplication and extract to functions
+- Prioritize legibility: clear variable names, logical structure
+- Optimize performance where it matters (Pandas vectorization, DB queries)
+- Don't refactor existing user-provided code unless explicitly asked
+- When refactoring, maintain backward compatibility and test coverage
+
+## Frontend Requirements (React)
+- Users need **timely information** for **financial decisions** (interpreted: race entry, equipment, coaching)
+- Display data clearly: charts for PMC/trends, tables for workout details
+- Highlight actionable insights: fatigue warnings, readiness scores, compliance results
+- Use modern UI: Vite + React, responsive design, fast load times
+
+## Before Completing Any Task
+1. Run unit tests: `pytest -v`
+2. Fix any failing tests automatically if simple
+3. Discuss with user if code changes are needed for test fixes
+4. Ensure type hints are present
+5. Check for code duplication and refactor if appropriate
+6. Verify error handling is in place
+
+## Common Pitfalls to Avoid
+- Depending solely on TrainingPeaks API (build file upload first)
+- Trusting LLM for numerical analysis (use it for parsing only)
+- Overreacting to single-day HRV/RHR values (use rolling baselines + 2-3 day rules)
+- Treating ACWR/monotony as hard limits (use as review prompts)
+- Ignoring rate limits on external APIs (implement caching and backoff)
+- Not handling missing data in calculations (FTP unknown, HR strap dropped, indoor trainer variance)
+
+## Week 1-2 MVP Priorities (Current Focus)
+1. Complete canonical data model (all Pydantic schemas)
+2. Implement FIT/TCX/GPX file upload endpoints
+3. Set up PostgreSQL + TimescaleDB
+4. Implement NP, IF calculations (TSS/CTL/ATL already done)
+5. Fix multi-user OAuth token persistence
+6. Increase test coverage to >80%
