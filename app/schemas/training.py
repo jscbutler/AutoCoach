@@ -150,6 +150,63 @@ class IntervalDetected(BaseModel):
         return v
 
 
+class AthleteThreshold(BaseModel):
+    """Date-versioned athlete thresholds for accurate historical analysis.
+    
+    When scoring a workout, use the threshold that was effective on that date.
+    Supports TrainingPeaks import and manual user overrides.
+    """
+    id: Optional[int] = Field(None, description="Database ID (auto-generated)")
+    athlete_id: int = Field(..., ge=1, description="Foreign key to athlete")
+    effective_date: date = Field(..., description="Date when these thresholds became active")
+    sport: str = Field(..., description="Sport type: cycling, running, swimming")
+    
+    # Cycling thresholds
+    ftp: Optional[int] = Field(None, ge=0, le=600, description="Functional Threshold Power (watts)")
+    ftp_source: Optional[str] = Field(None, description="Source: trainingpeaks, test, estimate, user_override")
+    
+    # Running thresholds
+    threshold_pace_min_per_km: Optional[float] = Field(
+        None, ge=2.0, le=10.0, 
+        description="Threshold pace for running (min/km) - roughly hour race pace"
+    )
+    critical_speed_m_per_s: Optional[float] = Field(
+        None, ge=2.0, le=8.0,
+        description="Critical speed (m/s) - boundary between heavy/severe domains"
+    )
+    run_threshold_source: Optional[str] = Field(None, description="Source of running threshold")
+    
+    # Swimming thresholds  
+    threshold_pace_100m_s: Optional[float] = Field(
+        None, ge=50.0, le=300.0,
+        description="CSS (Critical Swim Speed) pace per 100m in seconds"
+    )
+    swim_threshold_source: Optional[str] = Field(None, description="Source of swim threshold")
+    
+    # Heart rate thresholds (apply across sports)
+    lthr: Optional[int] = Field(None, ge=100, le=220, description="Lactate Threshold Heart Rate (bpm)")
+    max_hr: Optional[int] = Field(None, ge=100, le=220, description="Maximum Heart Rate (bpm)")
+    resting_hr: Optional[int] = Field(None, ge=30, le=100, description="Resting Heart Rate (bpm)")
+    hr_source: Optional[str] = Field(None, description="Source of HR thresholds")
+    
+    # Metadata
+    notes: Optional[str] = Field(None, max_length=500, description="Test notes or methodology")
+    is_user_override: bool = Field(
+        default=False, 
+        description="True if manually entered by user (takes precedence over API imports)"
+    )
+    created_at: Optional[datetime] = Field(None, description="Record creation timestamp")
+    updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
+
+    @field_validator('sport')
+    @classmethod
+    def validate_sport(cls, v: str) -> str:
+        allowed = ['cycling', 'running', 'swimming']
+        if v.lower() not in allowed:
+            raise ValueError(f"Sport must be one of {allowed}")
+        return v.lower()
+
+
 class MetricsDaily(BaseModel):
     """Daily aggregated training metrics including recovery markers."""
     id: Optional[int] = Field(None, description="Database ID (auto-generated)")

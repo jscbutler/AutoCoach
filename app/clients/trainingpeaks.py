@@ -8,7 +8,7 @@ from urllib.parse import urlencode
 import httpx
 from authlib.integrations.requests_client import OAuth2Session
 
-from app.schemas.training import Activity
+from app.schemas.training import Activity, AthleteThreshold
 
 
 class TrainingPeaksAPIError(Exception):
@@ -252,3 +252,112 @@ class TrainingPeaksClient:
             endpoint = "/v1/athlete/metrics"
         
         return self._make_request("GET", endpoint, params=params)
+
+    def get_athlete_thresholds(self, athlete_id: Optional[str] = None) -> Dict[str, Any]:
+        """Fetch current athlete thresholds from TrainingPeaks.
+        
+        Returns threshold data including FTP, threshold paces, HR zones, etc.
+        """
+        if athlete_id:
+            endpoint = f"/v1/athletes/{athlete_id}/thresholds"
+        else:
+            endpoint = "/v1/athlete/thresholds"
+        
+        return self._make_request("GET", endpoint)
+    
+    def get_threshold_history(
+        self, 
+        start_date: date,
+        end_date: date,
+        athlete_id: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """Fetch historical threshold changes for date range.
+        
+        This allows reconstruction of what thresholds were active on specific dates.
+        """
+        params = {
+            "startDate": start_date.isoformat(),
+            "endDate": end_date.isoformat(),
+        }
+        
+        if athlete_id:
+            endpoint = f"/v1/athletes/{athlete_id}/thresholds/history"
+        else:
+            endpoint = "/v1/athlete/thresholds/history"
+        
+        return self._make_request("GET", endpoint, params=params)
+    
+    def convert_tp_thresholds_to_schema(
+        self, 
+        tp_data: Dict[str, Any], 
+        athlete_id: int,
+        effective_date: date
+    ) -> List[AthleteThreshold]:
+        """Convert TrainingPeaks threshold data to AthleteThreshold schema.
+        
+        Args:
+            tp_data: Raw threshold data from TrainingPeaks API
+            athlete_id: AutoCoach athlete ID
+            effective_date: Date these thresholds became active
+            
+        Returns:
+            List of AthleteThreshold objects (one per sport if multi-sport athlete)
+        """
+        thresholds = []
+        
+        # Cycling thresholds
+        if "ftp" in tp_data or "functionalThresholdPower" in tp_data:
+            cycling_threshold = AthleteThreshold(
+                athlete_id=athlete_id,
+                effective_date=effective_date,
+                sport="cycling",
+                ftp=tp_data.get("ftp") or tp_data.get("functionalThresholdPower"),
+                ftp_source="trainingpeaks",
+                lthr=tp_data.get("lactateThresholdHeartRate"),
+                max_hr=tp_data.get("maximumHeartRate"),
+                resting_hr=tp_data.get("restingHeartRate"),
+                hr_source="trainingpeaks",
+                is_user_override=False,
+            )
+            thresholds.append(cycling_threshold)
+        
+        # Running thresholds
+        if "thresholdPace" in tp_data or "criticalSpeed" in tp_data:
+            # TrainingPeaks typically stores pace in min/km or min/mile
+            threshold_pace = tp_data.get("thresholdPace")
+            if threshold_pace and "unit" in tp_data and tp_data["unit"] == "mile":
+                # Convert min/mile to min/km
+                threshold_pace = threshold_pace / 1.60934
+            
+            running_threshold = AthleteThreshold(
+                athlete_id=athlete_id,
+                effective_date=effective_date,
+                sport="running",
+                threshold_pace_min_per_km=threshold_pace,
+                critical_speed_m_per_s=tp_data.get("criticalSpeed"),
+                run_threshold_source="trainingpeaks",
+                lthr=tp_data.get("lactateThresholdHeartRate"),
+                max_hr=tp_data.get("maximumHeartRate"),
+                resting_hr=tp_data.get("restingHeartRate"),
+                hr_source="trainingpeaks",
+                is_user_override=False,
+            )
+            thresholds.append(running_threshold)
+        
+        # Swimming thresholds
+        if "thresholdPace100m" in tp_data or "css" in tp_data:
+            swim_threshold = AthleteThreshold(
+                athlete_id=athlete_id,
+                effective_date=effective_date,
+                sport="swimming",
+                threshold_pace_100m_s=tp_data.get("thresholdPace100m") or tp_data.get("css"),
+                swim_threshold_source="trainingpeaks",
+                lthr=tp_data.get("lactateThresholdHeartRate"),
+                max_hr=tp_data.get("maximumHeartRate"),
+                resting_hr=tp_data.get("restingHeartRate"),
+                hr_source="trainingpeaks",
+                is_user_override=False,
+            )
+            thresholds.append(swim_threshold)
+        
+        return thresholds
