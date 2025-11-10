@@ -13,6 +13,7 @@ class Activity(BaseModel):
     tss: Optional[float] = Field(None, ge=0)
     hr_avg: Optional[float] = Field(None, ge=0)
     power_avg: Optional[float] = Field(None, ge=0)
+    normalized_power: Optional[float] = Field(None, ge=0, description="Normalized Power (NP) in watts")
     pace_min_per_km: Optional[float] = Field(None, ge=0)
     elevation_m: Optional[float] = Field(None, ge=0)
     intensity_factor: Optional[float] = Field(None, ge=0)

@@ -1,13 +1,23 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .env
+
+# Virtual environments
 .venv/
 eve_env/
 ac_env/
+
+# Testing
 .pytest_cache/
 .htmlcov/
 .coverage*
-uploads/
+
+# User data (keep sample_workouts/ in git)
+data/uploads/
+data/user_uploads/
+
+# IDE
 .vscode/

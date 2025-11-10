@@ -76,10 +76,19 @@ def test_trainingpeaks_endpoints_require_auth():
 
 def test_activities_endpoint_validation():
     """Test activities endpoint validates date parameters."""
-    # Invalid date range (end before start)
-    resp = client.get("/trainingpeaks/activities?start_date=2024-01-07&end_date=2024-01-01")
-    assert resp.status_code == 422  # Validation error from FastAPI
-    
-    # Valid date range but no auth
+    # First, test that no auth returns 401
     resp = client.get("/trainingpeaks/activities?start_date=2024-01-01&end_date=2024-01-07")
     assert resp.status_code == 401
+    
+    # Mock authenticated client to test date validation
+    from app.main import tp_client
+    from app.clients.trainingpeaks import TrainingPeaksClient
+    
+    mock_client = TrainingPeaksClient("test_id", "test_secret")
+    mock_client.oauth_session.token = {"access_token": "fake_token"}
+    
+    with patch("app.main.tp_client", mock_client):
+        # Invalid date range (end before start) should return 400
+        resp = client.get("/trainingpeaks/activities?start_date=2024-01-07&end_date=2024-01-01")
+        assert resp.status_code == 400
+        assert "End date must be after start date" in resp.json()["detail"]

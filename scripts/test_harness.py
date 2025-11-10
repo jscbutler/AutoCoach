@@ -29,7 +29,7 @@ from app.services.metrics import (
     calculate_variability_index,
     calculate_tss_from_power,
 )
-from app.schemas.training import AthleteThreshold
+from app.schemas.training import AthleteThreshold, Activity
 from app.services.thresholds import get_threshold_for_date, validate_threshold_for_tss_calculation
 
 # Load environment variables
@@ -275,6 +275,258 @@ def analyze_fit_file(file_path: str, ftp: Optional[int] = None) -> Optional[Dict
         return None
 
 
+def fetch_tp_threshold_for_date(
+    client: TrainingPeaksClient, 
+    workout_date: date
+) -> Optional[int]:
+    """Fetch FTP/threshold from TrainingPeaks for a specific date.
+    
+    Args:
+        client: Authenticated TrainingPeaks client
+        workout_date: Date to get thresholds for
+        
+    Returns:
+        FTP value in watts, or None if not available
+    """
+    print_subsection(f"TrainingPeaks Threshold for {workout_date}")
+    
+    try:
+        # Try to get threshold history for a date range around the workout
+        start_date = workout_date - timedelta(days=30)
+        end_date = workout_date + timedelta(days=1)
+        
+        threshold_history = client.get_threshold_history(start_date, end_date)
+        
+        if threshold_history:
+            print(f"✓ Found {len(threshold_history)} threshold records")
+            
+            # Find the threshold active on workout date
+            # (most recent threshold before or on the workout date)
+            active_threshold = None
+            for threshold in sorted(threshold_history, key=lambda x: x.get('effectiveDate', ''), reverse=True):
+                threshold_date_str = threshold.get('effectiveDate', '')
+                if threshold_date_str:
+                    threshold_date = date.fromisoformat(threshold_date_str.split('T')[0])
+                    if threshold_date <= workout_date:
+                        active_threshold = threshold
+                        break
+            
+            if active_threshold:
+                ftp = active_threshold.get('ftp') or active_threshold.get('functionalThresholdPower')
+                if ftp:
+                    print(f"✓ Active FTP on {workout_date}: {ftp}W")
+                    effective_date = active_threshold.get('effectiveDate', 'Unknown')
+                    print(f"  (Set on: {effective_date})")
+                    return int(ftp)
+        
+        # Fallback: Get current thresholds
+        print("  No threshold history found, trying current thresholds...")
+        thresholds = client.get_athlete_thresholds()
+        ftp = thresholds.get('ftp') or thresholds.get('functionalThresholdPower')
+        
+        if ftp:
+            print(f"✓ Current FTP: {ftp}W")
+            print("  ⚠ Warning: Using current FTP, may not match workout date")
+            return int(ftp)
+        
+        print("  ✗ No FTP found")
+        return None
+        
+    except TrainingPeaksAPIError as e:
+        print(f"  ✗ API Error: {e}")
+        return None
+    except Exception as e:
+        print(f"  ✗ Unexpected Error: {e}")
+        return None
+
+
+def fetch_tp_daily_metrics(
+    client: TrainingPeaksClient,
+    workout_date: date
+) -> Optional[Dict[str, Any]]:
+    """Fetch daily metrics from TrainingPeaks for a specific date.
+    
+    Args:
+        client: Authenticated TrainingPeaks client
+        workout_date: Date to get metrics for
+        
+    Returns:
+        Dictionary of metrics, or None if not available
+    """
+    print_subsection(f"TrainingPeaks Daily Metrics for {workout_date}")
+    
+    try:
+        metrics = client.get_daily_metrics(workout_date, workout_date)
+        
+        if metrics and len(metrics) > 0:
+            daily = metrics[0]
+            print(f"✓ Daily metrics found")
+            
+            if 'tss' in daily:
+                print(f"  TSS: {daily['tss']}")
+            if 'hrv' in daily:
+                print(f"  HRV: {daily['hrv']}")
+            if 'restingHeartRate' in daily or 'rhr' in daily:
+                rhr = daily.get('restingHeartRate') or daily.get('rhr')
+                print(f"  Resting HR: {rhr} bpm")
+            if 'sleepScore' in daily or 'sleepQuality' in daily:
+                sleep = daily.get('sleepScore') or daily.get('sleepQuality')
+                print(f"  Sleep: {sleep}")
+            if 'rpe' in daily or 'perceivedExertion' in daily:
+                rpe = daily.get('rpe') or daily.get('perceivedExertion')
+                print(f"  RPE: {rpe}")
+            
+            return daily
+        else:
+            print("  No daily metrics found for this date")
+            return None
+            
+    except TrainingPeaksAPIError as e:
+        print(f"  ✗ API Error: {e}")
+        return None
+    except Exception as e:
+        print(f"  ✗ Unexpected Error: {e}")
+        return None
+
+
+def fetch_tp_workout_for_date(
+    client: TrainingPeaksClient,
+    workout_date: date
+) -> Optional[Activity]:
+    """Fetch workout from TrainingPeaks for a specific date.
+    
+    Args:
+        client: Authenticated TrainingPeaks client
+        workout_date: Date to get workout for
+        
+    Returns:
+        Activity object from TrainingPeaks, or None if not available
+    """
+    print_subsection(f"TrainingPeaks Workout for {workout_date}")
+    
+    try:
+        activities = client.fetch_activities(workout_date, workout_date)
+        
+        if activities and len(activities) > 0:
+            print(f"✓ Found {len(activities)} workout(s) on {workout_date}")
+            
+            # Display all workouts found
+            for i, activity in enumerate(activities, 1):
+                print(f"\nWorkout {i}:")
+                print(f"  Sport: {activity.sport}")
+                print(f"  Duration: {activity.duration_min:.1f} min")
+                if activity.distance_km:
+                    print(f"  Distance: {activity.distance_km:.2f} km")
+                if activity.tss:
+                    print(f"  TSS: {activity.tss:.0f}")
+                if activity.power_avg:
+                    print(f"  Avg Power: {activity.power_avg:.0f}W")
+                if activity.hr_avg:
+                    print(f"  Avg HR: {activity.hr_avg:.0f} bpm")
+                if activity.intensity_factor:
+                    print(f"  IF: {activity.intensity_factor:.3f}")
+            
+            # Return first activity (most likely match)
+            return activities[0]
+        else:
+            print("  No workouts found for this date")
+            return None
+            
+    except TrainingPeaksAPIError as e:
+        print(f"  ✗ API Error: {e}")
+        return None
+    except Exception as e:
+        print(f"  ✗ Unexpected Error: {e}")
+        return None
+
+
+def compare_workouts(
+    local_data: Dict[str, Any],
+    tp_activity: Optional[Activity],
+    tp_ftp: Optional[int]
+) -> None:
+    """Compare local FIT file data with TrainingPeaks data.
+    
+    Args:
+        local_data: Dictionary containing parsed FIT file data
+        tp_activity: Activity from TrainingPeaks (if available)
+        tp_ftp: FTP from TrainingPeaks (if available)
+    """
+    print_section("Comparison: Local FIT File vs TrainingPeaks")
+    
+    if not tp_activity:
+        print("⚠ No TrainingPeaks workout data available for comparison")
+        print("  Only showing local FIT file data")
+        return
+    
+    workout = local_data['workout']
+    power_samples = local_data.get('power_samples', [])
+    
+    print_subsection("Duration")
+    local_duration_min = workout.duration_s / 60
+    print(f"Local FIT:      {local_duration_min:.1f} min")
+    print(f"TrainingPeaks:  {tp_activity.duration_min:.1f} min")
+    diff = abs(local_duration_min - tp_activity.duration_min)
+    if diff < 1:
+        print(f"✓ Match (diff: {diff:.2f} min)")
+    else:
+        print(f"⚠ Difference: {diff:.1f} min")
+    
+    # Compare power metrics if available
+    if power_samples and tp_activity.power_avg:
+        print_subsection("Average Power")
+        local_avg = sum(power_samples) / len(power_samples)
+        print(f"Local FIT:      {local_avg:.0f}W")
+        print(f"TrainingPeaks:  {tp_activity.power_avg:.0f}W")
+        diff_pct = abs(local_avg - tp_activity.power_avg) / tp_activity.power_avg * 100
+        if diff_pct < 2:
+            print(f"✓ Match (diff: {diff_pct:.1f}%)")
+        else:
+            print(f"⚠ Difference: {diff_pct:.1f}%")
+    
+    # Compare TSS if both have FTP
+    if power_samples and tp_ftp:
+        print_subsection("Training Stress Score (TSS)")
+        
+        # Calculate local TSS
+        local_np = calculate_normalized_power(power_samples)
+        local_tss = calculate_tss_from_power(workout.duration_s, local_np, tp_ftp)
+        
+        print(f"Local FIT:      {local_tss:.0f}")
+        if tp_activity.tss:
+            print(f"TrainingPeaks:  {tp_activity.tss:.0f}")
+            diff_pct = abs(local_tss - tp_activity.tss) / tp_activity.tss * 100
+            if diff_pct < 5:
+                print(f"✓ Close match (diff: {diff_pct:.1f}%)")
+            else:
+                print(f"⚠ Difference: {diff_pct:.1f}%")
+        else:
+            print("TrainingPeaks:  Not available")
+        
+        # Compare NP if available
+        if tp_activity.normalized_power:
+            print_subsection("Normalized Power (NP)")
+            print(f"Local FIT:      {local_np:.0f}W")
+            print(f"TrainingPeaks:  {tp_activity.normalized_power:.0f}W")
+            diff_pct = abs(local_np - tp_activity.normalized_power) / tp_activity.normalized_power * 100
+            if diff_pct < 2:
+                print(f"✓ Match (diff: {diff_pct:.1f}%)")
+            else:
+                print(f"⚠ Difference: {diff_pct:.1f}%")
+    
+    # Compare distance if available
+    local_distance_km = workout.summary_json.get('distance_m', 0) / 1000
+    if local_distance_km > 0 and tp_activity.distance_km:
+        print_subsection("Distance")
+        print(f"Local FIT:      {local_distance_km:.2f} km")
+        print(f"TrainingPeaks:  {tp_activity.distance_km:.2f} km")
+        diff_pct = abs(local_distance_km - tp_activity.distance_km) / tp_activity.distance_km * 100
+        if diff_pct < 1:
+            print(f"✓ Match (diff: {diff_pct:.2f}%)")
+        else:
+            print(f"⚠ Difference: {diff_pct:.2f}%")
+
+
 def main():
     """Main test harness entry point."""
     parser = argparse.ArgumentParser(
@@ -283,13 +535,13 @@ def main():
         epilog="""
 Examples:
   # Analyze sample FIT file with manual FTP
-  python test_harness.py --file UploadFiles/Purple\ Patch-\ Nancy\ \&\ Frank\ Duet.fit.gz --ftp 250
+  python test_harness.py --file data/sample_workouts/Purple\ Patch-\ Nancy\ \&\ Frank\ Duet.fit.gz --ftp 250
   
   # Test TrainingPeaks connection
   python test_harness.py --tp-test
   
-  # Full integration test (TP + FIT analysis)
-  python test_harness.py --file UploadFiles/sample.fit.gz --tp-sync
+  # Full integration test: Compare FIT file with TrainingPeaks data
+  python test_harness.py --file data/sample_workouts/Purple\ Patch-\ Nancy\ \&\ Frank\ Duet.fit.gz --tp-compare
         """
     )
     
@@ -311,7 +563,12 @@ Examples:
     parser.add_argument(
         '--tp-sync',
         action='store_true',
-        help='Sync thresholds from TrainingPeaks'
+        help='Sync thresholds from TrainingPeaks (current)'
+    )
+    parser.add_argument(
+        '--tp-compare',
+        action='store_true',
+        help='Compare FIT file with TrainingPeaks data (fetches FTP, metrics, and workout for the date)'
     )
     
     args = parser.parse_args()
@@ -326,9 +583,11 @@ Examples:
     
     tp_client = None
     ftp_from_tp = None
+    tp_activity = None
+    tp_metrics = None
     
     # Test TrainingPeaks connection if requested
-    if args.tp_test or args.tp_sync:
+    if args.tp_test or args.tp_sync or args.tp_compare:
         tp_client = test_trainingpeaks_connection()
         
         if tp_client and args.tp_sync:
@@ -340,16 +599,45 @@ Examples:
             except Exception as e:
                 print(f"\n⚠ Could not fetch FTP from TrainingPeaks: {e}")
     
-    # Determine which FTP to use
-    ftp_to_use = args.ftp or ftp_from_tp
-    
     # Analyze FIT file if provided
+    local_data = None
     if args.file:
-        result = analyze_fit_file(args.file, ftp=ftp_to_use)
+        # Determine which FTP to use for initial analysis
+        ftp_to_use = args.ftp or ftp_from_tp
+        local_data = analyze_fit_file(args.file, ftp=ftp_to_use)
         
-        if result:
+        # If tp-compare is requested, fetch TrainingPeaks data for comparison
+        if args.tp_compare and local_data and tp_client:
+            print_section("TrainingPeaks Data Fetch")
+            
+            # Extract workout date from parsed FIT file
+            workout = local_data['workout']
+            workout_date = workout.start_time.date()
+            
+            print(f"Fetching TrainingPeaks data for workout on {workout_date}...")
+            
+            # Fetch FTP for the workout date
+            ftp_from_tp = fetch_tp_threshold_for_date(tp_client, workout_date)
+            
+            # Fetch daily metrics
+            tp_metrics = fetch_tp_daily_metrics(tp_client, workout_date)
+            
+            # Fetch workout from TrainingPeaks
+            tp_activity = fetch_tp_workout_for_date(tp_client, workout_date)
+            
+            # Compare the data
+            if ftp_from_tp or tp_activity:
+                compare_workouts(local_data, tp_activity, ftp_from_tp)
+            else:
+                print_section("Comparison")
+                print("⚠ Not enough TrainingPeaks data available for comparison")
+                print("  Either FTP or workout data is required")
+        
+        if local_data and not args.tp_compare:
             print_section("Analysis Complete")
-            print("✓ All checks passed successfully")
+            print("✓ FIT file analysis completed successfully")
+            if not ftp_to_use:
+                print("\n💡 Tip: Use --tp-compare to fetch FTP and compare with TrainingPeaks data")
     
     print("\n")
 

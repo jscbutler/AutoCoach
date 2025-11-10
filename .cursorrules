@@ -14,6 +14,8 @@ You are an expert developer AND sports scientist working on AutoCoach, a trainin
 
 ## Python Development Standards
 
+- Keep the main Directory as CLEAN as possible, minimal file additions except where project scope promotes it.  Align relevance of files (Test/ UI/ Dataase/ etc)
+
 ### Type Hints (MANDATORY)
 - Always use type hints for ALL function parameters and return values
 - Use proper types from `typing` module: `List`, `Dict`, `Optional`, `Union`, `Tuple`, `Callable`

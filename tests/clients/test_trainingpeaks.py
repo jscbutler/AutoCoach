@@ -49,14 +49,22 @@ class TestTrainingPeaksClient:
 
     def test_get_authorization_url(self):
         """Test authorization URL generation."""
-        client = TrainingPeaksClient("test_id", "test_secret")
+        # Test sandbox environment
+        client = TrainingPeaksClient("test_id", "test_secret", sandbox=True)
+        url = client.get_authorization_url()
         
-        with patch.object(client.oauth_session, 'authorization_url') as mock_auth:
-            mock_auth.return_value = ("https://example.com/auth", "state123")
-            url = client.get_authorization_url()
-            
-            assert url == "https://example.com/auth"
-            mock_auth.assert_called_once()
+        # Verify URL contains expected components
+        assert "oauth.sandbox.trainingpeaks.com" in url
+        assert "/oauth/authorize" in url
+        assert "client_id=test_id" in url
+        assert "scope=" in url
+        
+        # Test production environment
+        client_prod = TrainingPeaksClient("test_id", "test_secret", sandbox=False)
+        url_prod = client_prod.get_authorization_url()
+        
+        assert "oauth.trainingpeaks.com" in url_prod
+        assert "oauth.sandbox" not in url_prod
 
     def test_map_sport_types(self):
         """Test sport type mapping from TrainingPeaks to AutoCoach format."""

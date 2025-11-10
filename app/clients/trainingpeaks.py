@@ -89,7 +89,7 @@ class TrainingPeaksClient:
             # Default scopes for reading workout data
             scopes = ["read:athlete", "read:workouts", "read:metrics"]
         
-        authorization_url, state = self.oauth_session.authorization_url(
+        authorization_url, state = self.oauth_session.create_authorization_url(
             f"{self.oauth_base}/oauth/authorize",
             scope=" ".join(scopes),
         )
