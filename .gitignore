@@ -21,3 +21,6 @@ data/user_uploads/
 
 # IDE
 .vscode/
+# Logs
+.logs/
+*.log

@@ -14,7 +14,7 @@ Usage:
 
 import argparse
 import gzip
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Optional, Dict, Any
 import sys
@@ -22,6 +22,7 @@ import sys
 from dotenv import load_dotenv
 
 from app.clients.trainingpeaks import TrainingPeaksClient, TrainingPeaksAPIError
+from app.clients.strava import StravaClient, StravaAPIError
 from app.services.file_parser import parse_fit_file, FileParseError
 from app.services.metrics import (
     calculate_normalized_power,
@@ -119,6 +120,74 @@ def test_trainingpeaks_connection() -> Optional[TrainingPeaksClient]:
     except ValueError as e:
         print(f"✗ Configuration Error: {e}")
         print("  Please set TRAININGPEAKS_CLIENT_ID and TRAININGPEAKS_CLIENT_SECRET in .env")
+        return None
+    except Exception as e:
+        print(f"✗ Unexpected Error: {e}")
+        return None
+
+
+def test_strava_connection() -> Optional[StravaClient]:
+    """Test Strava API connection and fetch athlete data."""
+    print_section("Strava API Test")
+    
+    try:
+        client = StravaClient.from_env()
+        print("✓ Strava client initialized")
+        print(f"  API Base: {client.API_BASE}")
+        print(f"  OAuth Base: {client.OAUTH_BASE}")
+        
+        # Check if we have tokens
+        if not client.oauth_session.token:
+            print("\n⚠ No access token found in environment")
+            print("  To authenticate:")
+            print("  1. Set STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET in .env")
+            print("  2. Run: python scripts/get_strava_tokens.py")
+            print("  3. Or start server and visit: http://localhost:8000/auth/strava")
+            return None
+        
+        print("✓ Access token found")
+        
+        # Try to fetch athlete profile
+        print("\nFetching athlete profile...")
+        try:
+            athlete = client.get_athlete()
+            print(f"✓ Authenticated as: {athlete.get('firstname', '')} {athlete.get('lastname', '')}")
+            print(f"  Athlete ID: {athlete.get('id', 'N/A')}")
+            print(f"  Username: {athlete.get('username', 'N/A')}")
+            print(f"  Weight: {athlete.get('weight', 'N/A')} kg")
+            
+            # Try to fetch zones
+            print("\nFetching athlete zones...")
+            try:
+                zones = client.get_athlete_zones()
+                print(f"✓ Zones retrieved")
+                
+                # Power zones
+                if 'power' in zones and zones['power']:
+                    power_zones = zones['power']
+                    print(f"\n  Power Zones:")
+                    for i, zone in enumerate(power_zones.get('zones', []), 1):
+                        print(f"    Zone {i}: {zone.get('min', 'N/A')}-{zone.get('max', 'N/A')}W")
+                
+                # Heart rate zones
+                if 'heart_rate' in zones and zones['heart_rate']:
+                    hr_zones = zones['heart_rate']
+                    print(f"\n  Heart Rate Zones:")
+                    for i, zone in enumerate(hr_zones.get('zones', []), 1):
+                        print(f"    Zone {i}: {zone.get('min', 'N/A')}-{zone.get('max', 'N/A')} bpm")
+            except StravaAPIError as e:
+                print(f"  ⚠ Could not fetch zones: {e}")
+            
+            return client
+            
+        except StravaAPIError as e:
+            print(f"✗ API Error: {e}")
+            return None
+        
+    except ValueError as e:
+        print(f"✗ Configuration Error: {e}")
+        print("\nMake sure STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET are set in .env")
+        print("Run: python scripts/get_strava_tokens.py")
         return None
     except Exception as e:
         print(f"✗ Unexpected Error: {e}")
@@ -542,6 +611,12 @@ Examples:
   
   # Full integration test: Compare FIT file with TrainingPeaks data
   python test_harness.py --file data/sample_workouts/Purple\ Patch-\ Nancy\ \&\ Frank\ Duet.fit.gz --tp-compare
+  
+  # Test Strava connection
+  python test_harness.py --strava-test
+  
+  # Compare FIT file with Strava data
+  python test_harness.py --file data/sample_workouts/Purple\ Patch-\ Nancy\ \&\ Frank\ Duet.fit.gz --strava-compare
         """
     )
     
@@ -553,7 +628,7 @@ Examples:
     parser.add_argument(
         '--ftp',
         type=int,
-        help='Manual FTP value for TSS calculation (overrides TrainingPeaks)'
+        help='Manual FTP value for TSS calculation (overrides API)'
     )
     parser.add_argument(
         '--tp-test',
@@ -570,6 +645,16 @@ Examples:
         action='store_true',
         help='Compare FIT file with TrainingPeaks data (fetches FTP, metrics, and workout for the date)'
     )
+    parser.add_argument(
+        '--strava-test',
+        action='store_true',
+        help='Test Strava API connection'
+    )
+    parser.add_argument(
+        '--strava-compare',
+        action='store_true',
+        help='Compare FIT file with Strava data (fetches zones, activities, and streams)'
+    )
     
     args = parser.parse_args()
     
@@ -579,12 +664,15 @@ Examples:
         sys.exit(0)
     
     print_section("AutoCoach Test Harness")
-    print("Integration testing tool for TrainingPeaks, file parsing, and metrics")
+    print("Integration testing tool for TrainingPeaks, Strava, file parsing, and metrics")
     
     tp_client = None
     ftp_from_tp = None
     tp_activity = None
     tp_metrics = None
+    
+    strava_client = None
+    ftp_from_strava = None
     
     # Test TrainingPeaks connection if requested
     if args.tp_test or args.tp_sync or args.tp_compare:
@@ -598,6 +686,23 @@ Examples:
                     print(f"\n✓ FTP from TrainingPeaks: {ftp_from_tp}W")
             except Exception as e:
                 print(f"\n⚠ Could not fetch FTP from TrainingPeaks: {e}")
+    
+    # Test Strava connection if requested
+    if args.strava_test or args.strava_compare:
+        strava_client = test_strava_connection()
+        
+        # Try to get FTP from power zones
+        if strava_client:
+            try:
+                zones = strava_client.get_athlete_zones()
+                if 'power' in zones and zones['power']:
+                    power_zones = zones['power']
+                    # FTP is typically zone 4-5 boundary, but Strava doesn't expose it directly
+                    # We'll look for it in the raw zones data or calculate from Z5
+                    print("\n✓ Power zones retrieved from Strava")
+                    # Note: We may need to calculate FTP from zones or ask user
+            except Exception as e:
+                print(f"\n⚠ Could not fetch zones from Strava: {e}")
     
     # Analyze FIT file if provided
     local_data = None
@@ -633,11 +738,87 @@ Examples:
                 print("⚠ Not enough TrainingPeaks data available for comparison")
                 print("  Either FTP or workout data is required")
         
-        if local_data and not args.tp_compare:
+        # If strava-compare is requested, fetch Strava data for comparison
+        if args.strava_compare and local_data and strava_client:
+            print_section("Strava Data Fetch")
+            
+            # Extract workout date from parsed FIT file
+            workout = local_data['workout']
+            workout_date = workout.start_time.date()
+            
+            print(f"Fetching Strava activities for {workout_date}...")
+            
+            try:
+                # Fetch activities for the date range
+                activities = strava_client.list_activities(
+                    after=int(workout_date.strftime("%s")),
+                    before=int((workout_date + timedelta(days=1)).strftime("%s")),
+                    per_page=10
+                )
+                
+                if activities:
+                    print(f"✓ Found {len(activities)} Strava activity(ies) on {workout_date}")
+                    
+                    # Find the activity that matches our workout time
+                    matching_activity = None
+                    for activity in activities:
+                        activity_time = datetime.fromisoformat(activity['start_date'].replace("Z", "+00:00"))
+                        time_diff = abs((activity_time - workout.start_time).total_seconds())
+                        
+                        # If within 5 minutes, consider it a match
+                        if time_diff < 300:
+                            matching_activity = activity
+                            print(f"✓ Matched activity: {activity.get('name', 'Unknown')}")
+                            print(f"  Activity ID: {activity.get('id')}")
+                            print(f"  Type: {activity.get('type')}")
+                            print(f"  Start: {activity_time}")
+                            break
+                    
+                    if matching_activity:
+                        # Fetch detailed activity
+                        activity_id = matching_activity['id']
+                        detailed_activity = strava_client.get_activity(activity_id, include_all_efforts=True)
+                        
+                        print(f"\n✓ Fetched detailed Strava activity")
+                        print(f"  Duration: {detailed_activity.get('moving_time', 0) / 60:.1f} min")
+                        print(f"  Distance: {detailed_activity.get('distance', 0) / 1000:.2f} km")
+                        if 'average_watts' in detailed_activity:
+                            print(f"  Avg Power: {detailed_activity.get('average_watts'):.0f}W")
+                        if 'weighted_average_watts' in detailed_activity:
+                            print(f"  Weighted Avg Power (NP): {detailed_activity.get('weighted_average_watts'):.0f}W")
+                        if 'average_heartrate' in detailed_activity:
+                            print(f"  Avg HR: {detailed_activity.get('average_heartrate'):.0f} bpm")
+                        
+                        # Compare metrics
+                        print_subsection("Local vs Strava Comparison")
+                        local_workout = local_data['workout']
+                        local_power_avg = sum([s.power_w for s in local_data['samples'] if s.power_w]) / len([s for s in local_data['samples'] if s.power_w]) if local_data['samples'] else 0
+                        
+                        print(f"Duration: {local_workout.duration_s / 60:.1f} min (local) vs {detailed_activity.get('moving_time', 0) / 60:.1f} min (Strava)")
+                        
+                        if local_power_avg and 'average_watts' in detailed_activity:
+                            strava_avg = detailed_activity['average_watts']
+                            diff_pct = ((local_power_avg - strava_avg) / strava_avg * 100) if strava_avg else 0
+                            print(f"Avg Power: {local_power_avg:.0f}W (local) vs {strava_avg:.0f}W (Strava) [{diff_pct:+.1f}%]")
+                        
+                        if local_data.get('np') and 'weighted_average_watts' in detailed_activity:
+                            strava_np = detailed_activity['weighted_average_watts']
+                            diff_pct = ((local_data['np'] - strava_np) / strava_np * 100) if strava_np else 0
+                            print(f"Normalized Power: {local_data['np']:.0f}W (local) vs {strava_np:.0f}W (Strava) [{diff_pct:+.1f}%]")
+                    else:
+                        print("\n⚠ No matching Strava activity found within 5 minutes of FIT file start time")
+                else:
+                    print(f"⚠ No Strava activities found on {workout_date}")
+                    
+            except StravaAPIError as e:
+                print(f"✗ Failed to fetch Strava data: {e}")
+        
+        if local_data and not args.tp_compare and not args.strava_compare:
             print_section("Analysis Complete")
             print("✓ FIT file analysis completed successfully")
             if not ftp_to_use:
-                print("\n💡 Tip: Use --tp-compare to fetch FTP and compare with TrainingPeaks data")
+                print("\n💡 Tip: Use --strava-compare to compare with Strava data")
+                print("        or --tp-compare to compare with TrainingPeaks data")
     
     print("\n")
 
