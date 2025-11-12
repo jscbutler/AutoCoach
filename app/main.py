@@ -15,6 +15,7 @@ from app.services.metrics import compute_metrics_daily
 from app.services.file_parser import parse_fit_file, FileParseError
 from app.clients.trainingpeaks import TrainingPeaksClient, TrainingPeaksAPIError
 from app.clients.strava import StravaClient, StravaAPIError
+from app.clients.garmin import GarminClient, GarminAPIError
 
 # Load environment variables from .env file
 load_dotenv()
@@ -24,6 +25,10 @@ app = FastAPI(title="AutoCoach API", version="0.1.0")
 # Global client instances (in production, this should be managed per user)
 tp_client: Optional[TrainingPeaksClient] = None
 strava_client: Optional[StravaClient] = None
+garmin_client: Optional[GarminClient] = None
+
+# Last sync tracking (in production, store in database)
+last_garmin_sync: Optional[date] = None
 
 
 @app.get("/")
@@ -402,4 +407,156 @@ async def compute_strava_metrics(
         metrics = compute_metrics_daily(activities)
         return metrics
     except StravaAPIError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+# ============================================================================
+# Garmin Connect Endpoints (Unofficial API)
+# ============================================================================
+
+@app.post("/garmin/login")
+async def garmin_login():
+    """Authenticate with Garmin Connect using credentials from environment."""
+    global garmin_client
+    
+    try:
+        garmin_client = GarminClient.from_env()
+        garmin_client.login()
+        return {
+            "message": "Successfully authenticated with Garmin Connect",
+            "tokens_cached": True,
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except GarminAPIError as e:
+        raise HTTPException(status_code=401, detail=f"Authentication failed: {str(e)}")
+
+
+@app.get("/garmin/activities", response_model=List[Activity])
+async def get_garmin_activities(
+    start_date: Optional[date] = Query(None, description="Start date (YYYY-MM-DD), defaults to 3 days ago"),
+    end_date: Optional[date] = Query(None, description="End date (YYYY-MM-DD), defaults to today"),
+):
+    """Fetch activities from Garmin Connect.
+    
+    If start_date is not provided, fetches activities from the last 3 days.
+    """
+    global garmin_client
+    
+    # Auto-initialize and login if needed
+    if not garmin_client:
+        try:
+            garmin_client = GarminClient.from_env()
+            garmin_client.login()
+        except ValueError:
+            raise HTTPException(status_code=401, detail="Garmin credentials not configured. Set GARMIN_EMAIL and GARMIN_PASSWORD.")
+        except GarminAPIError as e:
+            raise HTTPException(status_code=401, detail=f"Authentication failed: {str(e)}")
+    
+    # Default to last 3 days if no start_date provided
+    if start_date is None:
+        start_date = date.today() - timedelta(days=3)
+    
+    if end_date is None:
+        end_date = date.today()
+    
+    if end_date < start_date:
+        raise HTTPException(status_code=400, detail="End date must be after start date")
+    
+    try:
+        activities = garmin_client.get_activities(start_date, end_date)
+        
+        # Convert to AutoCoach format
+        converted = []
+        for activity in activities:
+            try:
+                activity_data = garmin_client._convert_to_autocoach_format(activity)
+                if activity_data:
+                    converted.append(Activity(**activity_data))
+            except Exception as e:
+                print(f"Warning: Failed to convert activity: {e}")
+        
+        return converted
+    except GarminAPIError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/garmin/sync", response_model=List[Activity])
+async def sync_garmin_activities():
+    """Sync new activities from Garmin Connect since last sync.
+    
+    If no previous sync, fetches activities from the last 3 days.
+    Updates last_sync_date after successful fetch.
+    """
+    global garmin_client, last_garmin_sync
+    
+    # Auto-initialize and login if needed
+    if not garmin_client:
+        try:
+            garmin_client = GarminClient.from_env()
+            garmin_client.login()
+        except ValueError:
+            raise HTTPException(status_code=401, detail="Garmin credentials not configured.")
+        except GarminAPIError as e:
+            raise HTTPException(status_code=401, detail=f"Authentication failed: {str(e)}")
+    
+    try:
+        # Fetch activities since last sync (or last 3 days if no sync)
+        activities = garmin_client.fetch_activities_since(
+            since_date=last_garmin_sync,
+            days_back=3,
+        )
+        
+        # Update last sync date
+        last_garmin_sync = date.today()
+        
+        return activities
+    except GarminAPIError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/garmin/sync-status")
+async def get_garmin_sync_status():
+    """Get Garmin sync status (last sync date)."""
+    global last_garmin_sync
+    
+    return {
+        "last_sync": last_garmin_sync.isoformat() if last_garmin_sync else None,
+        "days_since_sync": (date.today() - last_garmin_sync).days if last_garmin_sync else None,
+        "authenticated": garmin_client is not None,
+    }
+
+
+@app.post("/garmin/metrics", response_model=List[MetricsDaily])
+async def compute_garmin_metrics(
+    start_date: Optional[date] = Query(None, description="Start date, defaults to 3 days ago"),
+    end_date: Optional[date] = Query(None, description="End date, defaults to today"),
+):
+    """Fetch Garmin activities and compute metrics."""
+    global garmin_client
+    
+    # Auto-initialize and login if needed
+    if not garmin_client:
+        try:
+            garmin_client = GarminClient.from_env()
+            garmin_client.login()
+        except ValueError:
+            raise HTTPException(status_code=401, detail="Garmin credentials not configured.")
+        except GarminAPIError as e:
+            raise HTTPException(status_code=401, detail=f"Authentication failed: {str(e)}")
+    
+    # Default to last 3 days
+    if start_date is None:
+        start_date = date.today() - timedelta(days=3)
+    if end_date is None:
+        end_date = date.today()
+    
+    try:
+        activities = garmin_client.fetch_activities_since(
+            since_date=start_date,
+            days_back=0,  # Not used when since_date is provided
+        )
+        metrics = compute_metrics_daily(activities)
+        return metrics
+    except GarminAPIError as e:
         raise HTTPException(status_code=400, detail=str(e))
